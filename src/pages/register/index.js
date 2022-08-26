@@ -11,15 +11,41 @@ import {
     InputGroup,
     InputRightElement,
     Link,
-    Select,
-    Textarea
+    Textarea,
+    Divider,
+    Flex,
+    Stack
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { ViewIcon, ViewOffIcon, SearchIcon, CloseIcon } from '@chakra-ui/icons';
 import Form from 'react-validation/build/form';
+import axios from 'axios';
 
 const Register = (props) => {
     const [showPassword, setShowPassword] = React.useState();
 
+    const [searchResult, setSearchResult] = React.useState([])
+    const [inputLocation, setInputLocation] = React.useState('')
+    const [inputLat, setInputLat] = React.useState(0)
+    const [inputLon, setInputLon] = React.useState(0)
+
+    const handleSearch = async (e) => {
+        console.log(inputLocation)
+        try{
+          let res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&limit=10&q=${inputLocation}`)
+          setSearchResult(res.data)
+          console.log(res.data)
+        } catch(err) {
+          console.log(err)
+        }
+    }
+    
+    const handleSelectLocation = (val) => {
+        setInputLocation(val.display_name)
+        setInputLat(val.lat)
+        setInputLon(val.lon)
+        setSearchResult([])
+    }
+  
     return (
         <>
         <Container minW={'100%'} bg={'gray.800'} color={'white'}>
@@ -38,16 +64,6 @@ const Register = (props) => {
                                     placeholder='Masukkan nama lengkap'
                                     id='fullname'
                                     name='fullname'/>
-                        </FormControl>
-
-                        <FormControl pt={5} isRequired>
-                            <FormLabel fontSize={14}>Tanggal Lahir</FormLabel>
-                                <Input 
-                                    borderColor={'gray.500'}
-                                    fontSize={14}
-                                    type={'date'}
-                                    id= 'birthdate'
-                                    name='birthdate'/>
                         </FormControl>
                         
                         <FormControl pt={5} isRequired>
@@ -90,6 +106,63 @@ const Register = (props) => {
                                     </Button>
                                 </InputRightElement>
                             </InputGroup>
+                        </FormControl>
+
+                        <FormControl pt={5} isRequired>
+                            <FormLabel fontSize={14}>Tanggal Lahir</FormLabel>
+                                <Input 
+                                    borderColor={'gray.500'}
+                                    fontSize={14}
+                                    type={'date'}
+                                    id= 'birthdate'
+                                    name='birthdate'/>
+                        </FormControl>
+
+                        <FormControl pt={5} isRequired>
+                            <FormLabel fontSize={14}>Lokasi</FormLabel>
+                            <InputGroup>
+                                <Input 
+                                    borderColor={'gray.500'}
+                                    fontSize={14}
+                                    autoComplete={'off'}
+                                    onKeyDown={(e) => {if(e.keyCode === 13){handleSearch()}}}
+                                    value={inputLocation}
+                                    onChange={(e) => setInputLocation(e.target.value)}
+                                    id= 'inputLocation'
+                                    name='inputLocation'/>
+                                <InputRightElement h={'full'}>
+                                    <Button
+                                        onClick={handleSearch}
+                                        variant={'ghost'}>
+                                        <SearchIcon/>
+                                    </Button>
+                                </InputRightElement>
+                            </InputGroup>
+                            
+                            {searchResult.length !== 0 && (
+                                <Box
+                                    px={2}
+                                    py={4}
+                                    m={'auto'}
+                                    display={'flex'}
+                                    fontSize={14}
+                                    bg={'white'}
+                                    color={'black'}
+                                    width={'100%'}>
+                                    <Stack>
+                                        {searchResult.map((val,idx) => (
+                                        <Container 
+                                            py={2}
+                                            key={idx} 
+                                            cursor={'pointer'} 
+                                            onClick={() => handleSelectLocation(val)}
+                                            _hover={{bg: 'blue.400', color: 'white'}}>
+                                            {val.display_name}
+                                        </Container>
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            )}
                         </FormControl>
 
                         <FormControl pt={5} isRequired>
