@@ -90,9 +90,9 @@ const Sidebar = (props) => {
         getFromLocalStorage();
       }, []);
 
-    useEffect(() => {
-        getUser(currentUser);
-    }, []);
+      useEffect(() => {
+        currentUser && getUser(currentUser);
+    }, [currentUser]);
 
     return (
         <div 

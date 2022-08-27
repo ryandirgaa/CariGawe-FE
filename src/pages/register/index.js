@@ -20,10 +20,7 @@ import {
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import Form from 'react-validation/build/form';
 
-import APIConfig from "../../api";
 import axios from "axios"; 
-
-import qs from 'qs';
 
 const Register = (props) => {
     let navigate = useNavigate();
