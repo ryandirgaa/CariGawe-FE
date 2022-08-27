@@ -10,6 +10,7 @@ import LowonganList from './pages/lowongan/list';
 import LowonganDetail from './pages/lowongan/detail';
 
 import ListKegiatan from './pages/kegiatan/list';
+import CreateLowongan from './pages/lowongan/create/createform';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
 
         <Route exact path="/lowongan" element={<LowonganList/>}/>
         <Route exact path="/lowongan/:kode" element={<LowonganDetail/>}/>
+        <Route exact path="/lowongan/buat" element={<CreateLowongan/>}/>
 
         <Route exact path="/kegiatan" element={<ListKegiatan/>}/>
       </Routes>
