@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Form } from 'react-bootstrap'
+import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import {
     Container,
@@ -15,7 +17,6 @@ import {
     BreadcrumbItem,
     BreadcrumbLink,
     Link,
-    Button,
     Input,
     InputGroup,
     FormControl,
@@ -33,17 +34,70 @@ import {
 import Sidebar from '../../../component/sidebar';
 import ProvinsiData from '../../../dummydata/province.json';
 import IndonesiaData from '../../../dummydata/indonesia.json';
+import { UserContext } from '../../../services/user-context';
   
 const CreateLowongan = (props) => {
-
-    const [selectedValue, setSelectedValue] = React.useState("");
-    const [selectedValue2, setSelectedValue2] = React.useState("");
+    const {currentUser, getFromLocalStorage, token} = useContext(UserContext);
+    const [contact, setContact] = React.useState("");
+    const [provinsi, setProvinsi] = React.useState("");
+    const [kota, setKota] = React.useState("");
+    const [namaPekerjaan, setNamaPekerjaan] = React.useState("");
+    const [jmlhLowongan, setJmlhLowongan] = React.useState(0);
+    const [upah, setUpah] = React.useState(0);    
+    const [deskripsi, setDeskripsi] = React.useState("");
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
+    let navigate = useNavigate()
 
-    
-    
+    const getUser = async(e) => {
+        axios.get(`https://carigawe-be.herokuapp.com/api/v1/user/${currentUser}`)
+        .then((response)=> 
+        { 
+        var userContact = response.data.contact;
+        setContact(userContact);
+        })
+    };
 
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+        let data = {
+            "description": deskripsi,
+            "name": namaPekerjaan,
+            "latitude": 0,
+            "longitude": 0,
+            "location": `${kota}, ${provinsi}`,
+            "city": kota,
+            "province": provinsi,
+            "contact": contact,
+            "num_participants": jmlhLowongan,
+            "wage": upah,
+            "status": "open"
+        }
+        let formData = new FormData();
+        formData.append("item", JSON.stringify(data))
+
+        axios.post('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
+            headers: {
+                 'Authorization': `Bearer ${token}`
+            }
+          })
+         .then(response => navigate((`/lowongan`)))
+         .catch(error => {
+             console.error('There was an error!', error);
+             alert("Cannot create job")
+             });
+        }
+    
+        useEffect(() => {
+            getFromLocalStorage()
+          }, []);
+        
+        useEffect(() => {
+            currentUser && getUser(currentUser)
+        }, [currentUser]);
+
+        
+    
     return (
         <>
         <Sidebar/>
@@ -70,46 +124,67 @@ const CreateLowongan = (props) => {
 
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
             <Text mb={5} fontSize={20} fontWeight={600}>Buat Lowongan</Text>
+            <Form onSubmit={handleSubmit}>
+            <FormControl>
             <VStack
                 spacing={4}
                 align='stretch'
               >
-                    <FormControl>
                         <FormLabel>Nama Pekerjaan</FormLabel>
-                        <Input placeholder='e.g Petani'/>
-                    </FormControl>
-                    <FormControl>
+                        <Input 
+                        placeholder='e.g Petani'
+                        onChange={(e) => setNamaPekerjaan(e.target.value)}
+                        />
                         <FormLabel>Lokasi Pekerjaan</FormLabel>
                         <Stack spacing={3}>
-                            <Select placeholder='Pilih Lokasi' size='md' />
+                            <Select 
+                            placeholder='Pilih Provinsi' 
+                            size='md' 
+                            onChange={(e) => setProvinsi(e.target.value)}
+                            value={provinsi}
+                            >
+                            {provinceData.map((data) => {
+                                return <option value={data.name}>{data.name}</option>
+                            })}
+                            </Select>
+                            <Select 
+                            placeholder='Pilih Kota' 
+                            size='md' 
+                            onChange={(e) => setKota(e.target.value)}
+                            value={kota}
+                            >
+                            {cityData.filter((data) => data.admin_name === provinsi).map((data) => {
+                                return <option value={data.city}>{data.city}</option>
+                            })}
+                            </Select>
                         </Stack>
-                    </FormControl>
-                    <FormControl>
                         <FormLabel>Jumlah Lowongan</FormLabel>
                         <NumberInput>
-                        <NumberInputField />
+                        <NumberInputField 
+                        onChange={(e) => setJmlhLowongan(e.target.value)}/>
                         <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
+                            <NumberIncrementStepper  
+                            onClick={() => setJmlhLowongan(jmlhLowongan + 1)}/>
+                            <NumberDecrementStepper 
+                            onClick={() => setJmlhLowongan(jmlhLowongan - 1)}/>
                         </NumberInputStepper>
                         </NumberInput>
-                    </FormControl>
-                    <FormControl>
                         <FormLabel>Upah Pekerjaan</FormLabel>
                         <InputGroup>
                             <InputLeftAddon children='Rp.' />
-                            <Input/>
+                            <NumberInput>
+                        <NumberInputField 
+                        onChange={(e) => setUpah(e.target.value)}/>
+                        </NumberInput>
                         </InputGroup>
-                    </FormControl>
-                    <FormControl>
                         <FormLabel>Deskripsi</FormLabel>
-                        <Textarea placeholder='Masukkan deskripsi pekerjaan' />
-                    </FormControl>
-                    <FormControl>
-                        <FormLabel>Foto</FormLabel>
-                        <Input type= 'file' />
-                    </FormControl>
+                        <Textarea 
+                        placeholder='Masukkan deskripsi pekerjaan' 
+                        onChange={(e) => setDeskripsi(e.target.value)}/>
             </VStack>
+            <button className="float-end">Buat</button>
+            </FormControl>
+            </Form>
         </Container>
         </>
     );
