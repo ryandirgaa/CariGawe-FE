@@ -174,7 +174,7 @@ const LowonganList = (props) => {
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pt={50} pb={25} maxW={'100%'}>
             <Box>
                 <Text fontSize={24} fontWeight={'semibold'}>Daftar Lowongan Kerja</Text>
-                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
+                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Daftar lowongan kerja yang bisa kamu ikuti</Text>
             </Box>
         </Container>
 
