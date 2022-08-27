@@ -118,7 +118,7 @@ const Register = (props) => {
                                     name='birthdate'/>
                         </FormControl>
 
-                        <FormControl pt={5} isRequired>
+                        {/* <FormControl pt={5} isRequired>
                             <FormLabel fontSize={14}>Lokasi</FormLabel>
                             <InputGroup>
                                 <Input 
@@ -163,7 +163,7 @@ const Register = (props) => {
                                     </Stack>
                                 </Box>
                             )}
-                        </FormControl>
+                        </FormControl> */}
 
                         <FormControl pt={5} isRequired>
                             <FormLabel fontSize={14}>Deskripsi</FormLabel>
