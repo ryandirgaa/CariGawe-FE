@@ -59,7 +59,6 @@ const LowonganDetail = (props) => {
 
     const handleLamar = () => {
         if (token){
-            console.log("token", token)
             const data ={
                 "job_id": kode
             }
