@@ -28,6 +28,7 @@ import IndonesiaData from '../../../dummydata/indonesia.json';
 import Sidebar from '../../../component/sidebar';
 
 import { SearchIcon } from '@chakra-ui/icons';
+import { UserContext } from '../../../services/user-context';
 
 const Pagination = styled.section`
     display: flex;
@@ -93,7 +94,8 @@ function publishYear(string1, string2){
     return new Date(string2).getFullYear()- new Date(string1).getFullYear();
 }
   
-const LowonganList = (props) => {
+const MyLowonganList = (props) => {
+    const {currentUser, token, getFromLocalStorage} = useContext(UserContext);
     const [temporarySearch, setTemporarySearch] = React.useState("");
     const [searchValue, setSearchValue] = React.useState("");
     const [selectedValue, setSelectedValue] = React.useState("");
@@ -143,14 +145,20 @@ const LowonganList = (props) => {
         axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
         .then((response)=> 
         { 
-        var jobList = response.data;
+        var jobList = response.data.filter((job)=>{
+            return job.creator === currentUser
+        });
         setAllJobs(jobList);
         })
     }
 
     useEffect(() => {
-        getJobs();
+        getFromLocalStorage();
       }, []);
+
+    useEffect(()=>{
+        getJobs(currentUser);
+    },[currentUser])
 
     var jobData = allJobs;
 
@@ -165,7 +173,7 @@ const LowonganList = (props) => {
                         href={null} 
                         _hover={{ color: '#6B6FCE', fontWeight: '500', textDecoration: 'none' }} 
                         _active={{ textDecoration: 'none' }}>
-                        Lowongan Kerja
+                        Lowongan Saya
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
@@ -173,8 +181,8 @@ const LowonganList = (props) => {
 
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pt={50} pb={25} maxW={'100%'}>
             <Box>
-                <Text fontSize={24} fontWeight={'semibold'}>Daftar Lowongan Kerja</Text>
-                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Daftar lowongan kerja yang bisa kamu ikuti</Text>
+                <Text fontSize={24} fontWeight={'semibold'}>Daftar Lowongan Saya</Text>
+                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Daftar lowongan kerja yang saya buat</Text>
             </Box>
         </Container>
 
@@ -282,7 +290,7 @@ const LowonganList = (props) => {
             <SimpleGrid columns={[1, 2, 2, 3]} spacing={5} pt={25}>
                 {jobData.map((data) => (
                     <Link 
-                        href={`lowongan/${data.id}`}
+                        href={`/lowongan/${data.id}`}
                         _hover={{ textDecoration: 'none' }} 
                         _active={{ textDecoration: 'none' }}>
                         <Box boxShadow='md' borderRadius={10} p={15}>
@@ -328,4 +336,4 @@ const LowonganList = (props) => {
     );
 }
 
-export default LowonganList;
+export default MyLowonganList;

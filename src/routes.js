@@ -14,6 +14,7 @@ import ListKegiatan from './pages/kegiatan/list';
 
 import { UserContext } from "./services/user-context";
 import CreateLowongan from "./pages/lowongan/create/createform";
+import MyLowonganList from "./pages/lowongan/my";
 
 function AppRoutes() {
   const {token} = React.useContext(UserContext);
@@ -31,6 +32,7 @@ function AppRoutes() {
           <Route exact path="/lowongan" element={<LowonganList/>}/>
           <Route exact path="/lowongan/:kode" element={<LowonganDetail/>}/>          
           <Route exact path="/lowongan/buat" element={<CreateLowongan/>}/>
+          <Route exact path="/lowongan/saya" element={<MyLowonganList/>}/>
           <Route exact path="/kegiatan" element={<ListKegiatan/>}/>
         </Routes>
       </div>
