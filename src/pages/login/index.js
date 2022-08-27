@@ -1,4 +1,5 @@
-import React from 'react';
+import { React, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Container,
     Center,
@@ -18,8 +19,59 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import Form from 'react-validation/build/form';
 import Logo from '../../carigawe.png';
 
+import axios from "axios";
+import qs from 'qs';
+
+import { UserContext } from '../../services/user-context';
+
 const Login = (props) => {
-    const [showPassword, setShowPassword] = React.useState();
+    let navigate = useNavigate();
+
+    const [showPassword, setShowPassword] = useState();
+
+    const [username, setUserName] = useState("");
+    const [password, setPassword] = useState("");
+
+    const {setCurrentUser, setToken} = useContext(UserContext);
+
+    const handleLogin = async (event) => {
+        event.preventDefault()
+        let data = {
+            username : username,
+            password : password
+        }
+        let post_data = qs.stringify(data);
+        console.log(data)
+        axios.post(`https://carigawe-be.herokuapp.com/api/v1/login`, post_data,
+        {
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/x-www-form-urlencoded'
+            }
+          })
+        .then(response => {
+            setCurrentUser(data.username);
+            setToken(response.data.access_token)
+            localStorage.setItem('token', response.data.access_token)
+            localStorage.setItem('user', data.username)
+            navigate('/')
+        })
+        .catch(error => {
+            console.error('There was an error!', error);
+            alert("Cannot login")
+            });
+        
+    }
+
+    // const handleLogin = async (e) => {
+    //     e.preventDefault();
+    //     await AuthService.login(username, password).then(() => {
+    //         navigate("/");
+    //         window.location.reload();
+    //     }).catch((error) => {
+    //         console.log(error);
+    //     })
+    // };
 
     return (
         <>
@@ -31,7 +83,7 @@ const Login = (props) => {
                         <Text fontWeight={'semibold'} fontSize={24} color={'white'}>CariGawe</Text>
                     </HStack>
 
-                    <Form>
+                    <Form onSubmit={handleLogin}>
                         <FormControl pt={5} isRequired>
                             <FormLabel fontSize={14}>Username</FormLabel>
                             <Input 
@@ -39,7 +91,8 @@ const Login = (props) => {
                                 fontSize={14}
                                 placeholder='Masukkan username'
                                 id='username'
-                                name='username'/>
+                                value={username}
+                                onChange={(e) => setUserName(e.target.value)}/>
                         </FormControl>
 
                         <FormControl pt={5} isRequired>
@@ -51,7 +104,8 @@ const Login = (props) => {
                                     type={showPassword ? 'text' : 'password'} 
                                     placeholder='Masukkan password'
                                     id='password'
-                                    name='password'/>
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}/>
                                 <InputRightElement h={'full'}>
                                     <Button
                                         variant={'ghost'}

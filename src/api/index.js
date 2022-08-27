@@ -1,7 +1,7 @@
 import axios from "axios"; 
 
 const APIConfig = axios.create({ 
-    baseURL: "https://konnekin-backend.herokuapp.com/api/",  
+    baseURL: "https://carigawe-be.herokuapp.com/",  
 }); 
 
 export default APIConfig;
