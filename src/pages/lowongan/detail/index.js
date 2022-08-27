@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {
     Container,
@@ -26,6 +26,7 @@ function publishDay(string){
 }
   
 const LowonganDetail = (props) => {
+    let navigate = useNavigate()
     const {currentUser, token, getFromLocalStorage} = useContext(UserContext);
     let d = new Date().getDate();
     const { kode } = useParams();
@@ -68,13 +69,8 @@ const LowonganDetail = (props) => {
             }})
             .then((response)=> 
             { 
-                var jobList = response.data;
-                for (let i = 0; i < jobList.length; i++) {
-                    if(jobList[i].id.toString() === kode){
-                        jobList.splice(i, 1);
-                    } 
-                }
-                setAllJobs(jobList.slice(0, 3));
+                navigate(('/kegiatan'))
+                alert('Lamaran terkirim')
             }).catch((err) =>{
                 console.log(err)
                 err.response && alert(err.response.data.detail)
