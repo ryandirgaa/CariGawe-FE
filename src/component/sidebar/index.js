@@ -67,6 +67,7 @@ const Sidebar = (props) => {
     const {setCurrentUser, setToken} = useContext(UserContext);
     const [fullname, setFullName] = useState("");
     const [birthdate, setBirthDate] = useState("");
+    const [image, setImage] = useState(undefined);
 
     const getUser = async(x) => {
         const response = await APIConfig.get(`api/v1/user/${x}`);
@@ -74,6 +75,7 @@ const Sidebar = (props) => {
         
         setFullName(result.fullname);
         setBirthDate(result.date_birth);
+        setImage(result.image);
     };
 
     const logout = async () => {
@@ -145,7 +147,7 @@ const Sidebar = (props) => {
             <Avatar
                 mt={0}
                 width={{base: 7, md: 10}} height={{base: 7, md: 10}}
-                src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
+                src={image}
                 alt={'Author'}/>
             <Stack display={{ base: "none", md: "block" }} direction={'column'} spacing={0} fontSize={'sm'}>
                 <Text fontSize={14} fontWeight={'semibold'} color={'white'}>{fullname}</Text>

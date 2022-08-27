@@ -63,16 +63,6 @@ const Login = (props) => {
         
     }
 
-    // const handleLogin = async (e) => {
-    //     e.preventDefault();
-    //     await AuthService.login(username, password).then(() => {
-    //         navigate("/");
-    //         window.location.reload();
-    //     }).catch((error) => {
-    //         console.log(error);
-    //     })
-    // };
-
     return (
         <>
         <Container minW={'100%'} bg={'gray.800'} color={'white'}>

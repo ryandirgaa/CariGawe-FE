@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Container,
@@ -21,6 +21,9 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import Form from 'react-validation/build/form';
 
 import APIConfig from "../../api";
+import axios from "axios"; 
+
+import qs from 'qs';
 
 const Register = (props) => {
     let navigate = useNavigate();
@@ -34,60 +37,30 @@ const Register = (props) => {
     const [contact, setContact] = useState("");
     const [description, setDescription] = useState("");
 
-    const [selectedFiles, setSelectedFiles] = useState(undefined);
-    const [image, setImage] = useState(undefined);
-    const [imageUrl, setImageUrl] = useState(undefined);
-    const [srcData, setSrcData] = useState('');
+    const [image, setImage] = useState(null);
 
-    function selectFiles(event){
-        var fileSelected = event.target.files;
-
-        if(fileSelected.length > 0) {
-            var fileToLoad = fileSelected[0];
-            setSelectedFiles(fileToLoad);
-            setImageUrl(URL.createObjectURL(fileToLoad));
-                
-            var reader = new FileReader();
-    
-            reader.onload = function(fileLoadedEvent) {
-                setSrcData(fileLoadedEvent.target.result)
-            }
-            reader.readAsDataURL(fileToLoad)
-        }
-    }
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        
-        const data = new FormData();
-        data.append("file", image);
-        data.append("upload_preset", "carigawe")
-        data.append("cloud_name", "dr8uzcnj9")
+        let data = {
+            "fullname": fullName,
+            "email": email,
+            "username": username,
+            "password": password,
+            "date_birth": birthdate.toString() + "T00:00:00.000Z",
+            "contact": contact,
+            "description": description
+        }
+        let formData = new FormData();
+        formData.append("user", JSON.stringify(data))
+        image && formData.append('file', image);
 
-        fetch("https://api.cloudinary.com/v1_1/dr8uzcnj9/image/upload",{
-            method: "post",
-            body: data
-        })
-        .then(() => {
-            setSrcData(data.url)
-            .then(() => {
-                APIConfig.post(`api/v1/register`, {
-                    fullname: fullName,
-                    email: email,
-                    username: username,
-                    password: password,
-                    date_birth: birthdate,
-                    contact: contact,
-                    description: description,
-                    image: srcData
-                }).then(() => {
-                    navigate(`/login`);
-                })
-            })
-        })
-        .catch((error) => {
+        console.log(data)
+        axios.post(`https://carigawe-be.herokuapp.com/api/v1/register`, formData)
+        .then(response => navigate((`/login`)))
+        .catch(error => {
             console.log(error);
-        })
+        });
     };
   
     return (
@@ -196,10 +169,12 @@ const Register = (props) => {
                                 <Input 
                                     borderStyle={'none'}
                                     px={0}
+                                    accept="image/*"
                                     type={'file'}
                                     fontSize={14}
                                     id= 'photo'
-                                    onChange={selectFiles}/>
+                                    onChange={(e) => {setImage(e.target.files[0])}}
+                                    />
                         </FormControl>
 
                         <Box pt={5} align={'center'}>
