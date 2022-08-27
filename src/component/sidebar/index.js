@@ -89,8 +89,8 @@ const Sidebar = (props) => {
       }, []);
 
     useEffect(() => {
-        getUser(currentUser);
-    }, []);
+        currentUser && getUser(currentUser);
+    }, [currentUser]);
 
     return (
         <div 

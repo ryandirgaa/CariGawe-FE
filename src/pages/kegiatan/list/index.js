@@ -27,23 +27,22 @@ import IndonesiaData from '../../../dummydata/indonesia.json';
 import Sidebar from '../../../component/sidebar';
 
 import { SearchIcon } from '@chakra-ui/icons';
+import { UserContext } from '../../../services/user-context';
+import APIConfig from '../../../api';
 
   
 const ListKegiatan = (props) => {
+    const {currentUser, getFromLocalStorage} = useContext(UserContext);
     const [temporarySearch, setTemporarySearch] = React.useState("");
     const [searchValue, setSearchValue] = React.useState("");
     const [selectedValue, setSelectedValue] = React.useState("");
     const [selectedValue2, setSelectedValue2] = React.useState("");
-
+    const [data, setData] =  React.useState([]);
 
     let d = new Date().getDate();
 
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
-
-    let data = LowonganData;
-    const [currentPage, setCurrentPage] = React.useState(1);
-    const pageNumbers = [];
 
     const handleSearchChange = (e) => {
         e.preventDefault();
@@ -55,9 +54,51 @@ const ListKegiatan = (props) => {
         setSearchValue(temporarySearch);
     };
 
-    
+    const getUser = async(x) => {
+        const response = await APIConfig.get(`api/v1/user/${x}`);
+        const result = await response.data.application;
+        for (let i = 0; i < result.length; i++){
+            let job = await APIConfig.get(`api/v1/job/${result[i].job_id}`);
+            result[i].title = job.data.name
+            result[i].employer = job.data.creator
+            result[i].city = job.data.city
+            result[i].province = job.data.province
+        }
+        console.log(result);
+        setData(result)
+    };
 
+    const showBadge = (status) => {
+        if (status === 'requested'){
+            return <Badge mb={5} fontSize={12} colorScheme={'yellow'}>
+                Lamaran Dikirim
+            </Badge>
+        }
+        else if (status === 'accepted'){
+            return <Badge mb={5} fontSize={12} colorScheme={'green'}>
+                Diterima
+            </Badge>
+        }
+        else if (status === 'completed'){
+            return <Badge mb={5} fontSize={12} colorScheme={'blue'}>
+                Selesai
+            </Badge>
+        }
+        else if (status === 'rejected'){
+            return <Badge mb={5} fontSize={12} colorScheme={'red'}>
+                Ditolak
+            </Badge>
+        }
+    }
+    useEffect(() => {
+        getFromLocalStorage()
+      }, []);
     
+    useEffect(() => {
+        console.log("current user", currentUser)
+        currentUser && getUser(currentUser)
+    }, [currentUser]);
+
     
     return (
         <>
@@ -134,51 +175,13 @@ const ListKegiatan = (props) => {
                 </Flex>
 
             </Flex>
-            
-            {/* {pageNumbers.length > 1 && (
-                <Pagination>
-                    <PaginationButton onClick={() => setCurrentPage(1)}>
-                        &lt;&lt;
-                    </PaginationButton>
-                    <PaginationButton onClick={() => 
-                        currentPage === 1 ? setCurrentPage(1) : setCurrentPage(currentPage-1)}>
-                        &lt;
-                    </PaginationButton>
-                    {pageNumbers.map((page) => (
-                        <PaginationButton
-                            unshow={
-                                currentPage > 2 && pageNumbers.length - currentPage > 1
-                                ? Math.abs(currentPage - page) > 2
-                                : pageNumbers.length - currentPage < 2
-                                ? pageNumbers.length - page > 4
-                                : page > 5
-                            }
-                            active={currentPage === page}
-                            onClick={() => setCurrentPage(page)}>
-                                {page}
-                        </PaginationButton>
-                    ))}
-                    <PaginationButton
-                        onClick={() =>
-                            currentPage === pageNumbers.length
-                                ? setCurrentPage(pageNumbers.length)
-                                : setCurrentPage(currentPage + 1)
-                        }>
-                        &gt;
-                    </PaginationButton>
-                    <PaginationButton onClick={() => setCurrentPage(pageNumbers.length)}>
-                        &gt;&gt;
-                    </PaginationButton>
-                </Pagination>
-            )} */}
+
             <SimpleGrid columns={[1, 2]} spacing={5} pt={25}>
-                {data.map((data) => (
-                    <Box boxShadow='md' borderRadius={10} p={15}>
+                {data.map((data, idx) => (
+                    <Box key={idx} boxShadow='md' borderRadius={10} p={15}>
                         <Stack direction={{base: 'column-reverse', lg: 'row'}}>
                             <Box py={2}>
-                                <Badge mb={5} fontSize={12} colorScheme={'green'}>
-                                    Selesai
-                                </Badge>
+                                {showBadge(data.status)}
                                 <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
                                 <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
                                 <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
