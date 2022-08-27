@@ -290,7 +290,7 @@ const MyLowonganList = (props) => {
             <SimpleGrid columns={[1, 2, 2, 3]} spacing={5} pt={25}>
                 {jobData.map((data) => (
                     <Link 
-                        href={`lowongan/${data.id}`}
+                        href={`/lowongan/${data.id}`}
                         _hover={{ textDecoration: 'none' }} 
                         _active={{ textDecoration: 'none' }}>
                         <Box boxShadow='md' borderRadius={10} p={15}>
