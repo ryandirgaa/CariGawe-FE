@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
 import {
     Container,
     Stack,
@@ -97,6 +98,7 @@ const LowonganList = (props) => {
     const [searchValue, setSearchValue] = React.useState("");
     const [selectedValue, setSelectedValue] = React.useState("");
     const [selectedValue2, setSelectedValue2] = React.useState("");
+    const [allJobs, setAllJobs] = useState([]);
 
     let d = new Date().getTime();
 
@@ -136,6 +138,21 @@ const LowonganList = (props) => {
     const indexOfLastData = currentPage * 15;
     const indexOfFirstData = indexOfLastData - 15;
     data = data.slice(indexOfFirstData, indexOfLastData);
+
+    const getJobs = () =>{
+        axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
+        .then((response)=> 
+        { 
+        var jobList = response.data;
+        setAllJobs(jobList);
+        })
+    }
+
+    useEffect(() => {
+        getJobs();
+      }, []);
+
+    var jobData = allJobs;
 
     return (
         <>
@@ -263,24 +280,17 @@ const LowonganList = (props) => {
                 </Pagination>
             )}
             <SimpleGrid columns={[1, 2, 2, 3]} spacing={5} pt={25}>
-                {data.map((data) => (
+                {jobData.map((data) => (
                     <Link 
-                        href={`lowongan/${data.code}`}
+                        href={`lowongan/${data.id}`}
                         _hover={{ textDecoration: 'none' }} 
                         _active={{ textDecoration: 'none' }}>
                         <Box boxShadow='md' borderRadius={10} p={15}>
                             <Stack direction={{base: 'column-reverse', lg: 'row'}}>
                                 <Box py={2}>
-                                    <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
-                                    <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
+                                    <Text fontSize={16} fontWeight={'semibold'}>{data.name}</Text>
+                                    <Text fontSize={12} fontWeight={'regular'}>{data.creator}</Text>
                                     <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
-                                    {publishDay(data.postdate, d) > 364 ? (
-                                    <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost {publishYear(data.postdate, d)} tahun yang lalu</Text>
-                                    ) : publishDay(data.postdate, d) > 30 ? (
-                                    <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost {publisMonth(data.postdate, d)} bulan yang lalu</Text>
-                                    ) : (
-                                    <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost {publishDay(data.postdate, d)} hari yang lalu</Text>    
-                                    )}
                                 </Box>
                                 <Spacer/>
                                 <Flex 
@@ -291,7 +301,11 @@ const LowonganList = (props) => {
                                     position={'relative'}
                                     width={{base: '100%', lg: '40%'}}>
                                     <Box>
-                                        <Image src="https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg" />
+                                        <Image src={data.image != null ? 
+                                        data.image 
+                                        : 
+                                        "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} 
+                                        />
                                     </Box>
                                 </Flex>
                             </Stack>

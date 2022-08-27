@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from "react-router-dom";
+import axios from 'axios';
 import {
     Container,
     Stack,
@@ -26,17 +27,49 @@ function publishDay(string){
 const LowonganDetail = (props) => {
     let d = new Date().getDate();
     const { kode } = useParams();
-    let data = LowonganData;
+    const [job, setJob] = useState([]);
+    const [allJobs, setAllJobs] = useState([]);
+
+    const getJob = () =>{
+        axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
+        .then((response)=> 
+        { 
+        var jobResponse = response.data;
+        setJob(jobResponse);
+        })
+    }
+
+    const getJobs = () =>{
+        axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
+        .then((response)=> 
+        { 
+        var jobList = response.data;
+        for (let i = 0; i < jobList.length; i++) {
+            if(jobList[i].id.toString() === kode){
+                jobList.splice(i, 1);
+            } 
+        }
+        setAllJobs(jobList.slice(0, 3));
+        })
+    }
+
+    useEffect(() => {
+        getJob();
+        getJobs();
+      }, []);
+
+    var jobData = job;
+    console.log(allJobs);
 
     return (
         <>
         <Sidebar/>
-        {data.filter((data) => data.code === kode).map((data) => (
+        {
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} maxW={'100%'} bg={'gray.800'} px={{base: 0, md: 10}} py={{base: 30, md: 35}}>
             <Breadcrumb fontSize={14} fontWeight={'semibold'} separator='/' color={'white'}>
                 <BreadcrumbItem>
                     <BreadcrumbLink
-                        href='/blog' 
+                        href='/lowongan' 
                         color={'white'}
                         fontWeight={400}>
                         Lowongan Kerja
@@ -47,12 +80,12 @@ const LowonganDetail = (props) => {
                         fontSize={{ base: '16', md: '20' }}
                         color={'white'}
                         href={null}>
-                        {data.title}
+                        {jobData.name}
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
         </Container>
-        ))}
+        }
 
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
             <Stack
@@ -60,16 +93,22 @@ const LowonganDetail = (props) => {
                 justifyContent={'left'}
                 spacing={{base: 5, lg: 10}}
                 direction={{ base: 'column', lg: 'row' }}>
-                {data.filter((data) => data.code === kode).map((data) => (
+                {
                 <Stack border={'1px'} borderColor={'gray.300'} p={{base: 15, md: 30}} maxW={{base: '100%', md: '3xl'}} flex={10} spacing={{ base: 5, md: 8 }}>
                     <Box border={2} borderColor={'green.700'}>
                         <Stack pb={10} direction={{base: 'column', lg: 'row'}} spacing={4}>
-                            <Image src={'https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg'} width={{base: '50vw', lg: '22.5vw'}}/>
+                            <Image 
+                                src={jobData.image!= null ? 
+                                jobData.image 
+                                : 
+                                "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} 
+                                width={{base: '50vw', lg: '22.5vw'}}
+                            />
                             <Stack direction={'column'} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
-                                <Text fontSize={20} fontWeight={600}>{data.title}</Text>
-                                <Text>{data.employer}</Text>
-                                <Text color={'gray.600'}>{data.city}, {data.province}</Text>
-                                <Text py={25} color={'red.600'}>Tersisa 20 slot pelamar lagi</Text>
+                                <Text fontSize={20} fontWeight={600}>{jobData.name}</Text>
+                                <Text>{jobData.creator}</Text>
+                                <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
+                                <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
                                 <Button
                                     width={75}
                                     size={'sm'}
@@ -83,19 +122,19 @@ const LowonganDetail = (props) => {
                         <Stack>
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Deskripsi</Text>
-                                <Text fontSize={14}>{data.description}</Text>
+                                <Text fontSize={14}>{jobData.description}</Text>
                             </Box>
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Upah</Text>
-                                <Text fontSize={14}>{data.salary}</Text>
+                                <Text fontSize={14}>{jobData.wage}</Text>
                             </Box>
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Kontak</Text>
                                 <Stack direction={{base: 'column', lg: 'row'}} spacing={4}>
                                     <Avatar name='Segun Adebayo' src='https://bit.ly/sage-adebayo' />
                                     <Stack direction={'column'} spacing={0} fontSize={'sm'}>
-                                        <Text fontSize={16} fontWeight={600}>{data.employer}</Text>
-                                        <Text color={'gray.600'}>{data.contact}</Text>
+                                        <Text fontSize={16} fontWeight={600}>{jobData.creator}</Text>
+                                        <Text color={'gray.600'}>{jobData.contact}</Text>
                                     </Stack>
                                 </Stack>
                             </Box>
@@ -103,7 +142,7 @@ const LowonganDetail = (props) => {
                         </Stack>
                     </Box> 
                 </Stack>
-                ))}
+                }
                 <Flex
                     border={'1px'} 
                     borderColor={'gray.300'}
@@ -113,15 +152,14 @@ const LowonganDetail = (props) => {
                     flexDirection={'column'}
                     position={'relative'}>
                     <Text pb={25} fontSize={20} fontWeight={600}>Lowongan Lainnya</Text>
-                    {data.slice(0, 3).map((data) => (
+                    {allJobs.map((data) => (
                         <Link 
-                            href={`/lowongan/${data.code}`}>
+                            href={`/lowongan/${data.id}`}>
                             <Box boxShadow='md' borderRadius={10} p={15} my={2}>
                                 <Box py={2}>
-                                    <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
-                                    <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
+                                    <Text fontSize={16} fontWeight={'semibold'}>{data.name}</Text>
+                                    <Text fontSize={12} fontWeight={'regular'}>{data.creator}</Text>
                                     <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
-                                    <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost {`${d - publishDay(data.postdate)}`} hari yang lalu</Text>
                                 </Box>
                             </Box>
                         </Link>
