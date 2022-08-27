@@ -1,4 +1,5 @@
-import React from 'react';
+import { React, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Container,
     Center,
@@ -16,35 +17,78 @@ import {
     Flex,
     Stack
 } from '@chakra-ui/react';
-import { ViewIcon, ViewOffIcon, SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import Form from 'react-validation/build/form';
-import axios from 'axios';
+
+import APIConfig from "../../api";
 
 const Register = (props) => {
-    const [showPassword, setShowPassword] = React.useState();
+    let navigate = useNavigate();
 
-    const [searchResult, setSearchResult] = React.useState([])
-    const [inputLocation, setInputLocation] = React.useState('')
-    const [inputLat, setInputLat] = React.useState(0)
-    const [inputLon, setInputLon] = React.useState(0)
+    const [showPassword, setShowPassword] = useState(false);
+    const [fullName, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [username, setUserName] = useState("");
+    const [password, setPassword] = useState("");
+    const [birthdate, setBirthdate] = useState(new Date());
+    const [contact, setContact] = useState("");
+    const [description, setDescription] = useState("");
 
-    const handleSearch = async (e) => {
-        console.log(inputLocation)
-        try{
-          let res = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&limit=10&q=${inputLocation}`)
-          setSearchResult(res.data)
-          console.log(res.data)
-        } catch(err) {
-          console.log(err)
+    const [selectedFiles, setSelectedFiles] = useState(undefined);
+    const [image, setImage] = useState(undefined);
+    const [imageUrl, setImageUrl] = useState(undefined);
+    const [srcData, setSrcData] = useState('');
+
+    function selectFiles(event){
+        var fileSelected = event.target.files;
+
+        if(fileSelected.length > 0) {
+            var fileToLoad = fileSelected[0];
+            setSelectedFiles(fileToLoad);
+            setImageUrl(URL.createObjectURL(fileToLoad));
+                
+            var reader = new FileReader();
+    
+            reader.onload = function(fileLoadedEvent) {
+                setSrcData(fileLoadedEvent.target.result)
+            }
+            reader.readAsDataURL(fileToLoad)
         }
     }
-    
-    const handleSelectLocation = (val) => {
-        setInputLocation(val.display_name)
-        setInputLat(val.lat)
-        setInputLon(val.lon)
-        setSearchResult([])
-    }
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        
+        const data = new FormData();
+        data.append("file", image);
+        data.append("upload_preset", "carigawe")
+        data.append("cloud_name", "dr8uzcnj9")
+
+        fetch("https://api.cloudinary.com/v1_1/dr8uzcnj9/image/upload",{
+            method: "post",
+            body: data
+        })
+        .then(() => {
+            setSrcData(data.url)
+            .then(() => {
+                APIConfig.post(`api/v1/register`, {
+                    fullname: fullName,
+                    email: email,
+                    username: username,
+                    password: password,
+                    date_birth: birthdate,
+                    contact: contact,
+                    description: description,
+                    image: srcData
+                }).then(() => {
+                    navigate(`/login`);
+                })
+            })
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+    };
   
     return (
         <>
@@ -55,15 +99,16 @@ const Register = (props) => {
                         Registrasi
                     </Text>
 
-                    <Form>
+                    <Form onSubmit={handleRegister}>
                         <FormControl pt={10} isRequired>
                             <FormLabel fontSize={14}>Nama Lengkap</FormLabel>
                                 <Input 
                                     borderColor={'gray.500'}
                                     fontSize={14}
                                     placeholder='Masukkan nama lengkap'
-                                    id='fullname'
-                                    name='fullname'/>
+                                    id='fullName'
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}/>
                         </FormControl>
                         
                         <FormControl pt={5} isRequired>
@@ -73,7 +118,8 @@ const Register = (props) => {
                                 fontSize={14}
                                 placeholder='Masukkan email'
                                 id='email'
-                                name='email'/>
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}/>
                         </FormControl>
 
                         <FormControl pt={5} isRequired>
@@ -83,11 +129,12 @@ const Register = (props) => {
                                 fontSize={14}
                                 placeholder='Masukkan username'
                                 id='username'
-                                name='username'/>
+                                value={username}
+                                onChange={(e) => setUserName(e.target.value)}/>
                         </FormControl>
                     
                         <FormControl pt={5} isRequired>
-                            <FormLabel fontSize={14}>Kata sandi</FormLabel>
+                            <FormLabel fontSize={14}>Password</FormLabel>
                             <InputGroup>
                                 <Input
                                     borderColor={'gray.500'}
@@ -95,7 +142,8 @@ const Register = (props) => {
                                     type={showPassword ? 'text' : 'password'} 
                                     placeholder='Masukkan kata sandi'
                                     id='password'
-                                    name='password'/>
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}/>
                                 <InputRightElement h={'full'}>
                                     <Button
                                         variant={'ghost'}
@@ -115,55 +163,20 @@ const Register = (props) => {
                                     fontSize={14}
                                     type={'date'}
                                     id= 'birthdate'
-                                    name='birthdate'/>
+                                    value={birthdate}
+                                    onChange={(e) => setBirthdate(e.target.value)}/>
                         </FormControl>
 
-                        {/* <FormControl pt={5} isRequired>
-                            <FormLabel fontSize={14}>Lokasi</FormLabel>
-                            <InputGroup>
-                                <Input 
-                                    borderColor={'gray.500'}
-                                    fontSize={14}
-                                    autoComplete={'off'}
-                                    onKeyDown={(e) => {if(e.keyCode === 13){handleSearch()}}}
-                                    value={inputLocation}
-                                    onChange={(e) => setInputLocation(e.target.value)}
-                                    id= 'inputLocation'
-                                    name='inputLocation'/>
-                                <InputRightElement h={'full'}>
-                                    <Button
-                                        onClick={handleSearch}
-                                        variant={'ghost'}>
-                                        <SearchIcon/>
-                                    </Button>
-                                </InputRightElement>
-                            </InputGroup>
-                            
-                            {searchResult.length !== 0 && (
-                                <Box
-                                    px={2}
-                                    py={4}
-                                    m={'auto'}
-                                    display={'flex'}
-                                    fontSize={14}
-                                    bg={'white'}
-                                    color={'black'}
-                                    width={'100%'}>
-                                    <Stack>
-                                        {searchResult.map((val,idx) => (
-                                        <Container 
-                                            py={2}
-                                            key={idx} 
-                                            cursor={'pointer'} 
-                                            onClick={() => handleSelectLocation(val)}
-                                            _hover={{bg: 'blue.400', color: 'white'}}>
-                                            {val.display_name}
-                                        </Container>
-                                        ))}
-                                    </Stack>
-                                </Box>
-                            )}
-                        </FormControl> */}
+                        <FormControl pt={5} isRequired>
+                            <FormLabel fontSize={14}>Kontak</FormLabel>
+                            <Input 
+                                borderColor={'gray.500'}
+                                fontSize={14}
+                                placeholder='Masukkan kontak'
+                                id='contact'
+                                value={contact}
+                                onChange={(e) => setContact(e.target.value)}/>
+                        </FormControl>
 
                         <FormControl pt={5} isRequired>
                             <FormLabel fontSize={14}>Deskripsi</FormLabel>
@@ -173,7 +186,8 @@ const Register = (props) => {
                                 type={'text'}
                                 placeholder='Deskripsikan tentang kamu'
                                 id='description' 
-                                name='description'
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                             />  
                         </FormControl>
 
@@ -185,7 +199,7 @@ const Register = (props) => {
                                     type={'file'}
                                     fontSize={14}
                                     id= 'photo'
-                                    name='photo'/>
+                                    onChange={selectFiles}/>
                         </FormControl>
 
                         <Box pt={5} align={'center'}>

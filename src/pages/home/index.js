@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Container,
@@ -27,6 +27,9 @@ import Sapi from "./img/sapi.png";
 
 import Sidebar from '../../component/sidebar';
 
+import APIConfig from '../../api';
+import { UserContext } from '../../services/user-context';
+
 const viewBox = [1000, 450];
 
 const letters = [
@@ -45,6 +48,25 @@ const y = scaleLinear()
 
   
 const Home = (props) => {
+    const {currentUser, getFromLocalStorage} = useContext(UserContext);
+    const [fullname, setFullName] = useState("");
+
+    const getUser = async(x) => {
+        const response = await APIConfig.get(`api/v1/user/${x}`);
+        const result = await response.data;
+        
+        setFullName(result.fullname);
+    };
+
+    useEffect(() => {
+        getFromLocalStorage();
+      }, []);
+
+    useEffect(() => {
+        getUser(currentUser);
+    }, []);
+
+
     const scale = scaleBand()
                     .rangeRound([0, viewBox[0] - 10])
                     .domain(letters.map(d => d.letter))
@@ -69,7 +91,7 @@ const Home = (props) => {
             
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pt={50} pb={25} maxW={'100%'}>
             <Box>
-                <Text fontSize={24} fontWeight={'semibold'}>Halo, Hazim!</Text>
+                <Text fontSize={24} fontWeight={'semibold'}>Halo, {fullname}!</Text>
                 <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
             </Box>
             <SimpleGrid columns={[1, 2, 2, 4]} spacing={5} pt={25}>

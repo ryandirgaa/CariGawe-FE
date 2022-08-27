@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "https://konnekin-backend.herokuapp.com/api/v1/auth/";
+const API_URL = "https://carigawe-be.herokuapp.com/api/v1/";
 
 class AuthService {
     login(username, password) {
