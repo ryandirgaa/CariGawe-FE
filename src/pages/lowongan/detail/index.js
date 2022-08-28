@@ -191,7 +191,7 @@ const LowonganDetail = (props) => {
                                 <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
                                 <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
                                 {
-                                jobData.creator != currentUser? 
+                                jobData.creator !== currentUser? 
                                 <Button
                                     onClick={handleLamar}
                                     width={75}

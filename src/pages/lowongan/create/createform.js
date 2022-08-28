@@ -76,15 +76,21 @@ const CreateLowongan = (props) => {
         }
         let formData = new FormData();
         formData.append("item", JSON.stringify(data))
+        console.log(image)
+        image && formData.append("file", image)
 
-        axios.put('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
+        axios.post('https://carigawe-be.herokuapp.com/api/v1/job/', formData, {
             headers: {
                  'Authorization': `Bearer ${token}`
             }
           })
-         .then(response => navigate((`/lowongan`)))
+         .then(response => {
+            alert("Lowongan telah dibuat")
+            navigate((`/lowongan`))
+        })
          .catch(error => {
              console.error('There was an error!', error);
+             error.response ? alert(error.response.data.detail):
              alert("Cannot create job")
              });
         }
@@ -182,7 +188,7 @@ const CreateLowongan = (props) => {
                         placeholder='Masukkan deskripsi pekerjaan' 
                         onChange={(e) => setDeskripsi(e.target.value)}/>
 
-                        {/* <FormControl>
+                        <FormControl>
                         <FormLabel fontSize={14}>Foto</FormLabel>
                                 <Input 
                                     borderStyle={'none'}
@@ -193,9 +199,9 @@ const CreateLowongan = (props) => {
                                     id= 'photo'
                                     onChange={(e) => {setImage(e.target.files[0])}}
                                     />
-                        </FormControl> */}
+                        </FormControl>
             </VStack>
-            <button className="float-end"><Button mt={4} colorScheme='blue'>Buat</Button></button>
+            <Button type="submit" className="float-end" mt={4} colorScheme='blue'>Buat</Button>
             </FormControl>
             </Form>
         </Container>
