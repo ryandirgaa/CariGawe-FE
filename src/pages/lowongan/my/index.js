@@ -184,6 +184,7 @@ const MyLowonganList = (props) => {
             <Box>
                 <Text fontSize={24} fontWeight={'semibold'}>Daftar Lowongan Saya</Text>
                 <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Daftar lowongan kerja yang saya buat</Text>
+                <br></br>
                 <Link 
                         href={`/lowongan/buat`}
                         _hover={{ textDecoration: 'none' }} 
