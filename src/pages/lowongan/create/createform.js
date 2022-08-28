@@ -41,6 +41,8 @@ const CreateLowongan = (props) => {
     const [upah, setUpah] = React.useState(0);    
     const [deskripsi, setDeskripsi] = React.useState("");
 
+    const [image, setImage] = React.useState(null);
+
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
     let navigate = useNavigate();
