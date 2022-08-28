@@ -71,18 +71,23 @@ const CreateLowongan = (props) => {
         }
         let formData = new FormData();
         formData.append("item", JSON.stringify(data))
+        console.log(image)
+        image && formData.append("file", image)
 
-        axios.post('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
+        axios.post('https://carigawe-be.herokuapp.com/api/v1/job/', formData, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
           })
-         .then(response => navigate((`/lowongan`)))
+         .then(response => {
+            alert("Lowongan telah dibuat")
+            navigate((`/lowongan`))
+        })
          .catch(error => {
-            console.error('There was an error!', error);
-            alert("Cannot create job")
-            console.log(token)
-            });
+             console.error('There was an error!', error);
+             error.response ? alert(error.response.data.detail):
+             alert("Cannot create job")
+             });
         }
     
         useEffect(() => {
@@ -201,7 +206,7 @@ const CreateLowongan = (props) => {
                             onChange={(e) => setDeskripsi(e.target.value)}/>
                     </FormControl>
 
-                    {/* <FormControl pt={5} isRequired>
+                    <FormControl pt={5} isRequired>
                         <FormLabel fontSize={14}>Foto Pekerjaan</FormLabel>
                         <Input 
                             borderStyle={'none'}
@@ -212,7 +217,7 @@ const CreateLowongan = (props) => {
                             id= 'photo'
                             onChange={(e) => {setImage(e.target.files[0])}}
                             />
-                    </FormControl> */}
+                    </FormControl>
 
                     <Box pt={5} align={'center'}>
                         <Button

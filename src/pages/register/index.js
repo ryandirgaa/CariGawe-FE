@@ -52,7 +52,7 @@ const Register = (props) => {
         formData.append("user", JSON.stringify(data))
         image && formData.append('file', image);
 
-        console.log(data)
+        console.log(image)
         axios.post(`https://carigawe-be.herokuapp.com/api/v1/register`, formData)
         .then(response => navigate((`/login`)))
         .catch(error => {
