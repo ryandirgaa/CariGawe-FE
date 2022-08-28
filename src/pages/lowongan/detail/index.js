@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {
     Container,
@@ -19,12 +19,15 @@ import {
 
 import LowonganData from '../../../dummydata/lowongan.json';
 import Sidebar from '../../../component/sidebar';
+import { UserContext } from '../../../services/user-context';
 
 function publishDay(string){
     return new Date(string).getDate();
 }
   
 const LowonganDetail = (props) => {
+    let navigate = useNavigate()
+    const {currentUser, token, getFromLocalStorage} = useContext(UserContext);
     let d = new Date().getDate();
     const { kode } = useParams();
     const [job, setJob] = useState([]);
@@ -44,14 +47,41 @@ const LowonganDetail = (props) => {
         .then((response)=> 
         { 
         var jobList = response.data;
-        for (let i = 0; i < jobList.length; i++) {
-            if(jobList[i].id.toString() === kode){
-                jobList.splice(i, 1);
-            } 
+        if (jobList){
+            for (let i = 0; i < jobList.length; i++) {
+                if(jobList[i].id.toString() === kode){
+                    jobList.splice(i, 1);
+                } 
+            }
         }
         setAllJobs(jobList.slice(0, 3));
         })
     }
+
+    const handleLamar = () => {
+        if (token){
+            const data ={
+                "job_id": kode
+            }
+            axios.post('https://carigawe-be.herokuapp.com/api/v1/userjob', data, {
+                headers: {
+                        'Authorization': `Bearer ${token}`
+            }})
+            .then((response)=> 
+            { 
+                navigate(('/kegiatan'))
+                alert('Lamaran terkirim')
+            }).catch((err) =>{
+                console.log(err)
+                err.response && alert(err.response.data.detail)
+            })
+        }
+    }
+    
+
+    useEffect(() => {
+        getFromLocalStorage()
+      }, []);
 
     useEffect(() => {
         getJob();
@@ -110,6 +140,7 @@ const LowonganDetail = (props) => {
                                 <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
                                 <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
                                 <Button
+                                    onClick={handleLamar}
                                     width={75}
                                     size={'sm'}
                                     fontSize={14}

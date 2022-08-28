@@ -90,7 +90,7 @@ const Sidebar = (props) => {
         getFromLocalStorage();
       }, []);
 
-      useEffect(() => {
+    useEffect(() => {
         currentUser && getUser(currentUser);
     }, [currentUser]);
 
@@ -121,6 +121,7 @@ const Sidebar = (props) => {
                 <Menu>
                     <MenuItem icon={FiHome} to="/">Beranda</MenuItem>
                     <MenuItem icon={FiList} to="/lowongan">Lowongan Kerja</MenuItem>
+                    <MenuItem icon={TbNote} to="/lowongan/saya">Lowongan Saya</MenuItem>
                     <MenuItem icon={TbNote} to="/kegiatan">Kegiatan Saya</MenuItem>
                 </Menu>
                 </Stack>
