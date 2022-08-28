@@ -20,10 +20,6 @@ import {
     Badge
   } from '@chakra-ui/react';
 
-import LowonganData from '../../../dummydata/lowongan.json';
-import ProvinsiData from '../../../dummydata/province.json';
-import IndonesiaData from '../../../dummydata/indonesia.json';
-
 import Sidebar from '../../../component/sidebar';
 
 import { SearchIcon } from '@chakra-ui/icons';
@@ -58,7 +54,7 @@ const ListKegiatan = (props) => {
     const showBadge = (status) => {
         if (status === 'requested'){
             return <Badge mb={5} fontSize={12} colorScheme={'yellow'}>
-                Lamaran Dikirim
+                Lamaran Terkirim
             </Badge>
         }
         else if (status === 'accepted'){
