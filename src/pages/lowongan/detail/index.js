@@ -34,6 +34,7 @@ const LowonganDetail = (props) => {
     const [job, setJob] = useState({});
     const [allJobs, setAllJobs] = useState([]);
     const [lamaranList, setLamaranList] = useState([]);
+    const [creator, setCreator] = useState({})
 
     const getJob = () =>{
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
@@ -44,7 +45,17 @@ const LowonganDetail = (props) => {
             setJob(jobResponse);
             if (job && currentUser === job.creator){
                 getLamaran(jobResponse)
+                getCreator(jobResponse.creator)
             }
+        })
+    }
+
+    const getCreator = (job_creator) => {
+        axios.get(`https://carigawe-be.herokuapp.com/api/v1/user/${job_creator}`)
+        .then((response)=> 
+        { 
+            console.log(response.data)
+            setCreator(response.data);
         })
     }
 
@@ -212,23 +223,7 @@ const LowonganDetail = (props) => {
                                     Edit
                                 </Button>
                                 }
-                                <Text py={25} color={'red.600'}>Tersisa {jobData && remParticipants(jobData)} slot pelamar lagi</Text>
-                                <Stack direction={'column'} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
-                                    {
-                                        jobData.creator !== currentUser?
-                                        <Button
-                                            onClick={handleLamar}
-                                            width={75}
-                                            size={'sm'}
-                                            fontSize={14}
-                                            colorScheme={'blue.600'}
-                                            bg={'blue.600'}>
-                                            Lamar
-                                        </Button> :
-                                        <></>
-                                    }
-           
-                                </Stack>
+    
                             </Stack>
                         </Stack>
                         <Stack>
@@ -243,10 +238,10 @@ const LowonganDetail = (props) => {
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Kontak</Text>
                                 <Stack direction={{base: 'column', lg: 'row'}} spacing={4}>
-                                    <Avatar name='Segun Adebayo' src='https://bit.ly/sage-adebayo' />
+                                    <Avatar name={creator.username} src={creator.image} />
                                     <Stack direction={'column'} spacing={0} fontSize={'sm'}>
-                                        <Text fontSize={16} fontWeight={600}>{jobData.creator}</Text>
-                                        <Text color={'gray.600'}>{jobData.contact}</Text>
+                                        <Text fontSize={16} fontWeight={600}>{creator.fullname}</Text>
+                                        <Text color={'gray.600'}>{creator.contact}</Text>
                                     </Stack>
                                 </Stack>
                             </Box>
