@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState, useContext, useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import {
     Container,
@@ -21,10 +21,46 @@ import LowonganData from '../../dummydata/lowongan.json';
 
 import Sidebar from '../../component/sidebar';
 
+import APIConfig from '../../api';
+import { UserContext } from '../../services/user-context';
+
+function publishYear(string1, string2){
+    return new Date(string2).getFullYear()- new Date(string1).getFullYear();
+}
   
 const Profil = (props) => {
+    let d = new Date().getTime();
+
     const { kode } = useParams();
+    const {currentUser, getFromLocalStorage} = useContext(UserContext);
+    const [fullname, setFullName] = useState("");
+    const [email, setEmail] = useState("");
+    const [birthdate, setBirthDate] = useState("");
+    const [contact, setContact] = useState("");
+    const [description, setDescription] = useState("");
+    const [image, setImage] = useState(undefined);
     let data = LowonganData;
+
+    const getUser = async(x) => {
+        const response = await APIConfig.get(`api/v1/user/${x}`);
+        const result = await response.data;
+        
+        setFullName(result.fullname);
+        setEmail(result.email);
+        setBirthDate(result.date_birth);
+        setContact(result.contact);
+        setDescription(result.description);
+        setImage(result.image);
+    };
+
+    useEffect(() => {
+        getFromLocalStorage();
+      }, []);
+
+    useEffect(() => {
+        currentUser && getUser(currentUser);
+    }, [currentUser]);
+
 
     return (
         <>
@@ -53,20 +89,12 @@ const Profil = (props) => {
         {data.filter((data) => data.code === kode).map((data) => (
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} maxW={'100%'} bg={'gray.800'} px={{base: 0, md: 10}} py={{base: 30, md: 35}}>
             <Breadcrumb fontSize={14} fontWeight={'semibold'} separator='/' color={'white'}>
-                <BreadcrumbItem>
-                    <BreadcrumbLink
-                        href='/blog' 
-                        color={'white'}
-                        fontWeight={400}>
-                        Lowongan Kerja
-                    </BreadcrumbLink>
-                </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
                     <BreadcrumbLink 
                         fontSize={{ base: '16', md: '20' }}
                         color={'white'}
                         href={null}>
-                        {data.title}
+                        Profil
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
@@ -85,12 +113,12 @@ const Profil = (props) => {
                             <Avatar
                             mt={0}
                             width={{base: 24, md: 40}} height={{base: 24, md: 40}}
-                            src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
+                            src={image}
                             alt={'Author'}
                             />
                             <Stack direction={'column'} pt={8} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
-                                <Text fontSize={20} fontWeight={600}>Muhammad Hazim</Text>
-                                <Text>Freelancer</Text>
+                                <Text fontSize={20} fontWeight={600}>{fullname}</Text>
+                                <Text>{publishYear(birthdate, d)} tahun</Text>
                                 <HStack pt={5}>
                                     <StarRatings
                                         starRatedColor="#F6E05E"
@@ -108,20 +136,18 @@ const Profil = (props) => {
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Deskripsi</Text>
                                 <Text fontSize={14}>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt 
-                                    ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco 
-                                    laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in 
-                                    voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat 
-                                    non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                    {description}
                                 </Text>
                             </Box>
                             <Box py={25}>
-                                <Text pb={25} fontSize={20} fontWeight={600}>Alamat</Text>
-                                <Text fontSize={14}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
+                                <Text pb={25} fontSize={20} fontWeight={600}>Email</Text>
+                                <Text fontSize={14}>
+                                    {email}
+                                </Text>
                             </Box>
                             <Box py={25}>
                                 <Text pb={25} fontSize={20} fontWeight={600}>Kontak</Text>
-                                <Text fontSize={14}>0812345678910</Text>
+                                <Text fontSize={14}>{contact}</Text>
                             </Box>
                             
                         </Stack>

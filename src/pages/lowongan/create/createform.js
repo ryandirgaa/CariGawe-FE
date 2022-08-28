@@ -35,14 +35,10 @@ import ProvinsiData from '../../../dummydata/province.json';
 import IndonesiaData from '../../../dummydata/indonesia.json';
   
 const CreateLowongan = (props) => {
-
     const [selectedValue, setSelectedValue] = React.useState("");
     const [selectedValue2, setSelectedValue2] = React.useState("");
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
-
-    
-    
 
     return (
         <>
@@ -68,25 +64,33 @@ const CreateLowongan = (props) => {
             </Breadcrumb>
         </Container>
 
-        <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
-            <Text mb={5} fontSize={20} fontWeight={600}>Buat Lowongan</Text>
-            <VStack
-                spacing={4}
+        <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pt={50} pb={25} maxW={'100%'}>
+            <Box>
+                <Text fontSize={24} fontWeight={'semibold'}>Buat Lowongan</Text>
+                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
+            </Box>
+        </Container>
+
+        <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pb={50} pt={25} maxW={'100%'}>
+            <VStack 
+                border={'1px'} borderColor={'gray.300'} p={{base: 15, md: 30}} maxW={'100%'} flex={10} spacing={{ base: 5, md: 8 }}
                 align='stretch'
               >
-                    <FormControl>
-                        <FormLabel>Nama Pekerjaan</FormLabel>
-                        <Input placeholder='e.g Petani'/>
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Nama Pekerjaan</FormLabel>
+                        <Input fontSize={14} placeholder='e.g Petani'/>
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Lokasi Pekerjaan</FormLabel>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Lokasi Pekerjaan</FormLabel>
                         <Stack spacing={3}>
-                            <Select placeholder='Pilih Lokasi' size='md' />
+                            <Select fontSize={14} placeholder='Pilih Lokasi' size='md' />
                         </Stack>
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Jumlah Lowongan</FormLabel>
-                        <NumberInput>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Jumlah Lowongan</FormLabel>
+                        <NumberInput fontSize={14}>
                         <NumberInputField />
                         <NumberInputStepper>
                             <NumberIncrementStepper />
@@ -94,20 +98,23 @@ const CreateLowongan = (props) => {
                         </NumberInputStepper>
                         </NumberInput>
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Upah Pekerjaan</FormLabel>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Upah Pekerjaan</FormLabel>
                         <InputGroup>
-                            <InputLeftAddon children='Rp.' />
-                            <Input/>
+                            <InputLeftAddon fontSize={14} children='Rp.' />
+                            <Input fontSize={14}/>
                         </InputGroup>
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Deskripsi</FormLabel>
-                        <Textarea placeholder='Masukkan deskripsi pekerjaan' />
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}l>Deskripsi</FormLabel>
+                        <Textarea fontSize={14} placeholder='Masukkan deskripsi pekerjaan' />
                     </FormControl>
-                    <FormControl>
-                        <FormLabel>Foto</FormLabel>
-                        <Input type= 'file' />
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Foto</FormLabel>
+                        <Input borderStyle={'none'} px={0} fontSize={14} type= 'file' />
                     </FormControl>
             </VStack>
         </Container>
