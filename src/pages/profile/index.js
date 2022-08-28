@@ -116,20 +116,9 @@ const Profil = (props) => {
                             src={image}
                             alt={'Author'}
                             />
-                            <Stack direction={'column'} pt={8} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
+                            <Stack direction={'column'} pt={12} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
                                 <Text fontSize={20} fontWeight={600}>{fullname}</Text>
                                 <Text>{publishYear(birthdate, d)} tahun</Text>
-                                <HStack pt={5}>
-                                    <StarRatings
-                                        starRatedColor="#F6E05E"
-                                        numberOfStars={5}
-                                        name='rating'
-                                        rating={4.6}
-                                        starDimension="25px"
-                                        starSpacing="2px"
-                                        /> 
-                                    <Text pt={1} pl={5} fontSize={20} fontWeight={600}>9.2</Text>
-                                </HStack>
                             </Stack>
                         </Stack>
                         <Stack>

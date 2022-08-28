@@ -309,7 +309,7 @@ const MyLowonganList = (props) => {
                                     position={'relative'}
                                     width={{base: '100%', lg: '40%'}}>
                                     <Box>
-                                        <Image src={data.image != null ? 
+                                        <Image width={150} height={100} src={data.image != null ? 
                                         data.image 
                                         : 
                                         "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} 

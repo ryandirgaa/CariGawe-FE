@@ -11,6 +11,7 @@ import LowonganList from './pages/lowongan/list';
 import LowonganDetail from './pages/lowongan/detail';
 
 import ListKegiatan from './pages/kegiatan/list';
+import KegiatanDetail from "./pages/kegiatan/detail";
 
 import { UserContext } from "./services/user-context";
 import CreateLowongan from "./pages/lowongan/create/createform";
@@ -34,6 +35,7 @@ function AppRoutes() {
           <Route exact path="/lowongan/buat" element={<CreateLowongan/>}/>
           <Route exact path="/lowongan/saya" element={<MyLowonganList/>}/>
           <Route exact path="/kegiatan" element={<ListKegiatan/>}/>
+          <Route exact path="/kegiatan/:kode" element={<KegiatanDetail/>}/> 
         </Routes>
       </div>
     );

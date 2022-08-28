@@ -20,7 +20,6 @@ import {
 } from 'react-icons/fi';
 
 import {TbNote} from 'react-icons/tb';
-import {RiNotificationLine} from 'react-icons/ri';
 
 import Logo from "../../carigawe.png";
 
@@ -137,7 +136,6 @@ const Sidebar = (props) => {
                 direction={'column'}>
                 <Menu>
                     <MenuItem icon={FiUser} to="/profil">Profil</MenuItem>
-                    <MenuItem icon={RiNotificationLine} to="/">Notifikasi</MenuItem>
                     <MenuItem icon={FiLogOut} onClick={logout} to="/login">Keluar</MenuItem>
                 </Menu>
                 </Stack>

@@ -1,4 +1,5 @@
 import { React, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import {
     Container,
@@ -20,10 +21,9 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
 import Done from "./img/done.svg";
-import Ongoing from "./img/ongoing.svg";
+import Reject from "./img/reject.svg";
 import Acc from "./img/accept.svg";
 import Saved from "./img/saved.svg";
-import Sapi from "./img/sapi.png";
 
 import Sidebar from '../../component/sidebar';
 
@@ -51,20 +51,53 @@ const Home = (props) => {
     const {currentUser, getFromLocalStorage} = useContext(UserContext);
     const [fullname, setFullName] = useState("");
 
+    const [application, setApplication] = useState([]);
+    const [diterima, setDiterima] = useState(0);
+    const [ditolak, setDitolak] = useState(0);
+    const [selesai, setSelesai] = useState(0);
+    const [allJobs, setAllJobs] = useState([]);
+
+
     const getUser = async(x) => {
         const response = await APIConfig.get(`api/v1/user/${x}`);
         const result = await response.data;
         
         setFullName(result.fullname);
+
+        for (let i = 0; i < result.application.length; i++){
+            if(result.application[i].status === "accepted") {
+                setDiterima(diterima+1)
+            }
+            else if(result.application[i].status === "rejected") {
+                setDitolak(ditolak+1)
+            }
+            else if(result.application[i].status === "completed") {
+                setSelesai(selesai+1)
+            }
+        }
     };
+
+    const getJobs = () =>{
+        axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
+        .then((response)=> 
+        { 
+        var jobList = response.data;
+        setAllJobs(jobList);
+        })
+    }
 
     useEffect(() => {
         getFromLocalStorage();
       }, []);
 
     useEffect(() => {
-        getUser(currentUser);
-    }, []);
+        getJobs();
+      }, []);
+
+
+    useEffect(() => {
+        currentUser && getUser(currentUser);
+    }, [currentUser]);
 
 
     const scale = scaleBand()
@@ -94,12 +127,12 @@ const Home = (props) => {
                 <Text fontSize={24} fontWeight={'semibold'}>Halo, {fullname}!</Text>
                 <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
             </Box>
-            <SimpleGrid columns={[1, 2, 2, 4]} spacing={5} pt={25}>
+            <SimpleGrid columns={[1, 2, 3]} spacing={5} pt={25}>
                 <Box boxShadow='md' borderRadius={10} p={15}>
                     <Stack direction={'row'}>
                         <Box>
                             <Text fontSize={14} fontWeight={'regular'}>Pekerjaan selesai</Text>
-                            <Text fontSize={20} fontWeight={'semibold'}>5</Text>
+                            <Text fontSize={20} fontWeight={'semibold'}>{selesai}</Text>
                         </Box>
                         <Flex 
                             justify={'center'}
@@ -115,25 +148,8 @@ const Home = (props) => {
                 <Box boxShadow='md' borderRadius={10} p={15}>
                     <Stack direction={'row'}>
                         <Box>
-                            <Text fontSize={14} fontWeight={'regular'}>Sedang dikerjakan</Text>
-                            <Text fontSize={20} fontWeight={'semibold'}>5</Text>
-                        </Box>
-                        <Flex 
-                            justify={'center'}
-                            align={'center'}
-                            position={'relative'}
-                            w={'60%'}>
-                            <Box ml={'auto'} mr={0}>
-                                <Image src={Ongoing} width={7} height={7} />
-                            </Box>
-                        </Flex>
-                    </Stack>
-                </Box>
-                <Box boxShadow='md' borderRadius={10} p={15}>
-                    <Stack direction={'row'}>
-                        <Box>
                             <Text fontSize={14} fontWeight={'regular'}>Lowongan diterima</Text>
-                            <Text fontSize={20} fontWeight={'semibold'}>5</Text>
+                            <Text fontSize={20} fontWeight={'semibold'}>{diterima}</Text>
                         </Box>
                         <Flex 
                             justify={'center'}
@@ -149,16 +165,16 @@ const Home = (props) => {
                 <Box boxShadow='md' borderRadius={10} p={15}>
                     <Stack direction={'row'}>
                         <Box>
-                            <Text fontSize={14} fontWeight={'regular'}>Lowongan tersimpan</Text>
-                            <Text fontSize={20} fontWeight={'semibold'}>5</Text>
+                            <Text fontSize={14} fontWeight={'regular'}>Lowongan ditolak</Text>
+                            <Text fontSize={20} fontWeight={'semibold'}>{ditolak}</Text>
                         </Box>
                         <Flex 
                             justify={'center'}
                             align={'center'}
                             position={'relative'}
-                            w={'50%'}>
+                            w={'60%'}>
                             <Box ml={'auto'} mr={0}>
-                                <Image src={Saved} width={7} height={7} />
+                                <Image src={Reject} width={7} height={7} />
                             </Box>
                         </Flex>
                     </Stack>
@@ -166,7 +182,7 @@ const Home = (props) => {
             </SimpleGrid>
         </Container>
 
-        <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={25} maxW={'100%'}>
+        {/* <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={25} maxW={'100%'}>
             <SimpleGrid columns={[1, 1, 2]} spacing={5} pt={25}>
                 <Box>
                     <Text fontSize={20} fontWeight={'semibold'}>Rating Pekerjaan Kamu</Text>
@@ -216,79 +232,61 @@ const Home = (props) => {
                     </Box>
                 </Box>
             </SimpleGrid>
-        </Container>
+        </Container> */}
 
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
-            <Text fontSize={20} fontWeight={'semibold'}>Lowongan di Wilayah Kamu</Text>
-            <SimpleGrid columns={[1, 2, 2, 3]} spacing={5} pt={25}>
-                
-                <Box boxShadow='md' borderRadius={10} p={15}>
-                    <Stack direction={{base: 'column-reverse', lg: 'row'}}>
-                        <Box py={2}>
-                            <Text fontSize={16} fontWeight={'semibold'}>Perah Susu Sapi</Text>
-                            <Text fontSize={12} fontWeight={'regular'}>Naufal Adi</Text>
-                            <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>Boyolali, Jawa Tengah</Text>
-                            <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost 3 hari yang lalu</Text>
-                        </Box>
-                        <Spacer/>
-                        <Flex 
-                            mr={0}
-                            ml={0}
-                            justify={'center'}
-                            align={'center'}
-                            position={'relative'}
-                            width={{base: '100%', lg: '40%'}}>
-                            <Box>
-                                <Image src={Sapi} />
+            <Stack direction={{base: 'column-reverse', lg: 'row'}}>
+                <Flex direction={'column'} justifyContent={'center'}>
+                    <Text fontSize={20} fontWeight={'semibold'}>Lowongan di Wilayah Kamu</Text>
+                </Flex>
+                <Spacer />
+                <Flex
+                    justify={'center'}
+                    align={'center'}
+                    position={'relative'}
+                >
+                    <Link to={'/lowongan'}>
+                        <Text fontSize={14} color={'blue.600'}>Lihat semua</Text>
+                    </Link>
+                    
+                </Flex>
+            </Stack>
+            {/* {allJobs.length > 0 ?  */}
+                <SimpleGrid columns={[1, 2, 2, 3]} spacing={5} pt={25}>
+                    {allJobs.slice(0,3).map((data) => (
+                        <Link 
+                            to={`lowongan/${data.id}`}
+                            _hover={{ textDecoration: 'none' }} 
+                            _active={{ textDecoration: 'none' }}>
+                            <Box boxShadow='md' borderRadius={10} p={15}>
+                                <Stack direction={{base: 'column-reverse', lg: 'row'}}>
+                                    <Box py={2}>
+                                        <Text fontSize={16} fontWeight={'semibold'}>{data.name}</Text>
+                                        <Text fontSize={12} fontWeight={'regular'}>{data.creator}</Text>
+                                        <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
+                                    </Box>
+                                    <Spacer/>
+                                    <Flex 
+                                        mr={0}
+                                        ml={0}
+                                        justify={'center'}
+                                        align={'center'}
+                                        position={'relative'}
+                                        width={{base: '100%', lg: '40%'}}>
+                                        <Box>
+                                            <Image width={150} height={100} src={data.image != null ? 
+                                            data.image 
+                                            : 
+                                            "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} 
+                                            />
+                                        </Box>
+                                    </Flex>
+                                </Stack>
                             </Box>
-                        </Flex>
-                    </Stack>
-                </Box>
-                <Box boxShadow='md' borderRadius={10} p={15}>
-                    <Stack direction={{base: 'column-reverse', lg: 'row'}}>
-                        <Box py={2}>
-                            <Text fontSize={16} fontWeight={'semibold'}>Perah Susu Sapi</Text>
-                            <Text fontSize={12} fontWeight={'regular'}>Naufal Adi</Text>
-                            <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>Boyolali, Jawa Tengah</Text>
-                            <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost 3 hari yang lalu</Text>
-                        </Box>
-                        <Spacer/>
-                        <Flex 
-                            mr={0}
-                            ml={0}
-                            justify={'center'}
-                            align={'center'}
-                            position={'relative'}
-                            width={{base: '100%', lg: '40%'}}>
-                            <Box>
-                                <Image src={Sapi} />
-                            </Box>
-                        </Flex>
-                    </Stack>
-                </Box>
-                <Box boxShadow='md' borderRadius={10} p={15}>
-                    <Stack direction={{base: 'column-reverse', lg: 'row'}}>
-                        <Box py={2}>
-                            <Text fontSize={16} fontWeight={'semibold'}>Perah Susu Sapi</Text>
-                            <Text fontSize={12} fontWeight={'regular'}>Naufal Adi</Text>
-                            <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>Boyolali, Jawa Tengah</Text>
-                            <Text pt={5} color={'blue.600'} fontSize={12} fontWeight={'regular'}>Dipost 3 hari yang lalu</Text>
-                        </Box>
-                        <Spacer/>
-                        <Flex 
-                            mr={0}
-                            ml={0}
-                            justify={'center'}
-                            align={'center'}
-                            position={'relative'}
-                            width={{base: '100%', lg: '40%'}}>
-                            <Box>
-                                <Image src={Sapi} />
-                            </Box>
-                        </Flex>
-                    </Stack>
-                </Box>
-            </SimpleGrid>
+                        </Link>
+                    ))}
+                </SimpleGrid>
+           
         </Container>
         </>
     );

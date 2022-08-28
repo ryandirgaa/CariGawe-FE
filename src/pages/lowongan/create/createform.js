@@ -1,21 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from "react-router-dom";
-import { Form } from 'react-bootstrap'
+import { useNavigate } from "react-router-dom";
+import Form from 'react-validation/build/form';
 import axios from 'axios';
 import {
     Container,
     Stack,
     VStack,
-    Flex,
-    Box,
-    Heading,
     Text,
-    Image,
-    Avatar,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    Link,
     Input,
     InputGroup,
     FormControl,
@@ -28,6 +22,8 @@ import {
     NumberInputStepper,
     NumberIncrementStepper,
     NumberDecrementStepper,
+    Button,
+    Box,
   } from '@chakra-ui/react';
 
 import Sidebar from '../../../component/sidebar';
@@ -44,6 +40,7 @@ const CreateLowongan = (props) => {
     const [jmlhLowongan, setJmlhLowongan] = React.useState(0);
     const [upah, setUpah] = React.useState(0);    
     const [deskripsi, setDeskripsi] = React.useState("");
+
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
     let navigate = useNavigate()
@@ -77,14 +74,15 @@ const CreateLowongan = (props) => {
 
         axios.post('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
             headers: {
-                 'Authorization': `Bearer ${token}`
+                "Authorization": `Bearer ${token}`
             }
           })
          .then(response => navigate((`/lowongan`)))
          .catch(error => {
-             console.error('There was an error!', error);
-             alert("Cannot create job")
-             });
+            console.error('There was an error!', error);
+            alert("Cannot create job")
+            console.log(token)
+            });
         }
     
         useEffect(() => {
@@ -104,10 +102,10 @@ const CreateLowongan = (props) => {
         <Breadcrumb fontSize={14} fontWeight={'semibold'} separator='/' color={'white'}>
                 <BreadcrumbItem>
                     <BreadcrumbLink
-                        href='/lowongan' 
+                        href='/lowongan/saya' 
                         color={'white'}
                         fontWeight={400}>
-                        Lowongan Kerja
+                        Lowongan Saya
                     </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbItem isCurrentPage>
@@ -121,69 +119,117 @@ const CreateLowongan = (props) => {
             </Breadcrumb>
         </Container>
 
+        <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} pt={50} maxW={'100%'}>
+            <Box>
+                <Text fontSize={24} fontWeight={'semibold'}>Buat Lowongan</Text>
+                <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Lorem ipsum dolor sit amet, consectetur adipiscing elit</Text>
+            </Box>
+        </Container>
+
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
-            <Text mb={5} fontSize={20} fontWeight={600}>Buat Lowongan</Text>
-            <Form onSubmit={handleSubmit}>
-            <FormControl>
-            <VStack
-                spacing={4}
-                align='stretch'
-              >
-                        <FormLabel>Nama Pekerjaan</FormLabel>
+            <Stack border={'1px'} borderColor={'gray.300'} p={{base: 15, md: 30}} maxW={'100%'} flex={10} spacing={{ base: 5, md: 8 }}>
+                <Form onSubmit={handleSubmit}>
+                    <FormControl isRequired>
+                        <FormLabel fontSize={14}>Nama Pekerjaan</FormLabel>
                         <Input 
-                        placeholder='e.g Petani'
-                        onChange={(e) => setNamaPekerjaan(e.target.value)}
-                        />
-                        <FormLabel>Lokasi Pekerjaan</FormLabel>
+                            fontSize={14}
+                            placeholder='e.g Petani'
+                            onChange={(e) => setNamaPekerjaan(e.target.value)}/>
+                    </FormControl>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Lokasi Pekerjaan</FormLabel>
                         <Stack spacing={3}>
                             <Select 
-                            placeholder='Pilih Provinsi' 
-                            size='md' 
-                            onChange={(e) => setProvinsi(e.target.value)}
-                            value={provinsi}
-                            >
-                            {provinceData.map((data) => {
-                                return <option value={data.name}>{data.name}</option>
-                            })}
+                                fontSize={14}
+                                placeholder='Pilih Provinsi' 
+                                size='md' 
+                                onChange={(e) => setProvinsi(e.target.value)}
+                                value={provinsi}
+                                >
+                                {provinceData.map((data) => {
+                                    return <option value={data.name}>{data.name}</option>
+                                })}
                             </Select>
                             <Select 
-                            placeholder='Pilih Kota' 
-                            size='md' 
-                            onChange={(e) => setKota(e.target.value)}
-                            value={kota}
-                            >
-                            {cityData.filter((data) => data.admin_name === provinsi).map((data) => {
-                                return <option value={data.city}>{data.city}</option>
-                            })}
+                                fontSize={14}
+                                placeholder='Pilih Kota' 
+                                size='md' 
+                                onChange={(e) => setKota(e.target.value)}
+                                value={kota}
+                                >
+                                {cityData.filter((data) => data.admin_name === provinsi).map((data) => {
+                                    return <option value={data.city}>{data.city}</option>
+                                })}
                             </Select>
                         </Stack>
-                        <FormLabel>Jumlah Lowongan</FormLabel>
+                    </FormControl>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Jumlah Lowongan</FormLabel>
                         <NumberInput>
-                        <NumberInputField 
-                        onChange={(e) => setJmlhLowongan(e.target.value)}/>
-                        <NumberInputStepper>
-                            <NumberIncrementStepper  
-                            onClick={() => setJmlhLowongan(jmlhLowongan + 1)}/>
-                            <NumberDecrementStepper 
-                            onClick={() => setJmlhLowongan(jmlhLowongan - 1)}/>
-                        </NumberInputStepper>
-                        </NumberInput>
-                        <FormLabel>Upah Pekerjaan</FormLabel>
+                            <NumberInputField 
+                                fontSize={14}
+                                onChange={(e) => setJmlhLowongan(e.target.value)}/>
+                            <NumberInputStepper>
+                                <NumberIncrementStepper  
+                                onClick={() => setJmlhLowongan(jmlhLowongan + 1)}/>
+                                <NumberDecrementStepper 
+                                onClick={() => setJmlhLowongan(jmlhLowongan - 1)}/>
+                            </NumberInputStepper>
+                        </NumberInput>    
+                    </FormControl>
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Upah Pekerjaan</FormLabel>
                         <InputGroup>
-                            <InputLeftAddon children='Rp.' />
+                            <InputLeftAddon fontSize={14} children='Rp.' />
                             <NumberInput>
-                        <NumberInputField 
-                        onChange={(e) => setUpah(e.target.value)}/>
-                        </NumberInput>
+                                <NumberInputField 
+                                    borderLeftRadius={0}
+                                    width={'100%'}
+                                    fontSize={14}
+                                    onChange={(e) => setUpah(e.target.value)}/>
+                            </NumberInput>
                         </InputGroup>
-                        <FormLabel>Deskripsi</FormLabel>
+                    </FormControl>    
+
+                    <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Deskripsi</FormLabel>
                         <Textarea 
-                        placeholder='Masukkan deskripsi pekerjaan' 
-                        onChange={(e) => setDeskripsi(e.target.value)}/>
-            </VStack>
-            <button className="float-end">Buat</button>
-            </FormControl>
-            </Form>
+                            fontSize={14} 
+                            placeholder='Masukkan deskripsi pekerjaan' 
+                            onChange={(e) => setDeskripsi(e.target.value)}/>
+                    </FormControl>
+
+                    {/* <FormControl pt={5} isRequired>
+                        <FormLabel fontSize={14}>Foto Pekerjaan</FormLabel>
+                        <Input 
+                            borderStyle={'none'}
+                            px={0}
+                            accept="image/*"
+                            type={'file'}
+                            fontSize={14}
+                            id= 'photo'
+                            onChange={(e) => {setImage(e.target.files[0])}}
+                            />
+                    </FormControl> */}
+
+                    <Box pt={5} align={'center'}>
+                        <Button
+                            width={'100%'}
+                            size={'md'}
+                            fontSize={14}
+                            colorScheme={'blue.600'}
+                            bg={'blue.600'}
+                            _hover={{ bg: 'blue.400' }}
+                            _active={{ bg: 'blue.400' }}
+                            type='submit'>
+                            Buat
+                        </Button>
+                    </Box>
+                </Form>
+            </Stack>
         </Container>
         </>
     );

@@ -36,23 +36,9 @@ const ListKegiatan = (props) => {
     const [temporarySearch, setTemporarySearch] = React.useState("");
     const [searchValue, setSearchValue] = React.useState("");
     const [selectedValue, setSelectedValue] = React.useState("");
-    const [selectedValue2, setSelectedValue2] = React.useState("");
     const [data, setData] =  React.useState([]);
 
     let d = new Date().getDate();
-
-    let provinceData = ProvinsiData;
-    let cityData = IndonesiaData;
-
-    const handleSearchChange = (e) => {
-        e.preventDefault();
-        setTemporarySearch(e.target.value);
-    };
-
-    const handleSearchFilter = (e) => {
-        e.preventDefault();
-        setSearchValue(temporarySearch);
-    };
 
     const getUser = async(x) => {
         const response = await APIConfig.get(`api/v1/user/${x}`);
@@ -100,6 +86,28 @@ const ListKegiatan = (props) => {
         currentUser && getUser(currentUser)
     }, [currentUser]);
 
+    let KegiatanData = data;
+
+    const handleSearchChange = (e) => {
+        e.preventDefault();
+        setTemporarySearch(e.target.value);
+    };
+
+    const handleSearchFilter = (e) => {
+        e.preventDefault();
+        setSearchValue(temporarySearch);
+    };
+
+    const matcher = (data) => {
+        const val = searchValue.toLocaleLowerCase();
+        if((data.status === selectedValue) || (selectedValue.length === 0)) {
+            if (data.title.toLocaleLowerCase().includes(val)) return true;
+        }
+        return false;
+    };
+    
+    KegiatanData = KegiatanData.filter((i) => matcher(i));
+
     
     return (
         <>
@@ -138,13 +146,13 @@ const ListKegiatan = (props) => {
                     width={{base: '100%', sm: '30%', md: '20%'}}
                     fontSize={14}
                     mr={{base: 0, sm: 3}}
-                    // onChange={(e) => setSelectedValue(e.target.value)}
-                    // value={selectedValue}
+                    onChange={(e) => setSelectedValue(e.target.value)}
+                    value={selectedValue}
                     placeholder='Status'>
-                        <option value="Selesai">Selesai</option>
-                        <option value="Sedang dikerjakan">Sedang dikerjakan</option>
-                        <option value="Diterima">Diterima</option>
-                        <option value="Ditolak">Ditolak</option>
+                        <option value="completed">Selesai</option>
+                        <option value="accepted">Diterima</option>
+                        <option value="rejected">Ditolak</option>
+                        <option value="requested">Lamaran Dikirim</option>
                 </Select>
                 <Spacer/>
                 <Flex width={{base: '100%', sm: '50%', lg: '30%'}}>
@@ -156,10 +164,10 @@ const ListKegiatan = (props) => {
                         roundedRight={'none'}
                         borderRightStyle={'none'}
                         placeholder="Cari kegiatan kamu"
-                        // onChange={handleSearchChange}
-                        // onKeyPress={(e) => {
-                        // if (e.key === "Enter") handleSearchFilter(e);
-                        // }}
+                        onChange={handleSearchChange}
+                        onKeyPress={(e) => {
+                        if (e.key === "Enter") handleSearchFilter(e);
+                        }}
                         >
                     </Input>
                     <Box 
@@ -176,39 +184,47 @@ const ListKegiatan = (props) => {
                 </Flex>
 
             </Flex>
-
-            <SimpleGrid columns={[1, 2]} spacing={5} pt={25}>
-                {data.map((data, idx) => (
-                    <Link 
-                    href={`/lowongan/${data.id}`}
-                    _hover={{ textDecoration: 'none' }} 
-                    _active={{ textDecoration: 'none' }}>
-                        <Box key={idx} boxShadow='md' borderRadius={10} p={15}>
-                            <Stack direction={{base: 'column-reverse', lg: 'row'}}>
-                                <Box py={2}>
-                                    {showBadge(data.status)}
-                                    <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
-                                    <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
-                                    <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
-                                </Box>
-                                <Spacer/>
-                                <Flex 
-                                    mr={0}
-                                    ml={0}
-                                    justify={'center'}
-                                    align={'center'}
-                                    position={'relative'}
-                                    width={{base: '100%', lg: '40%'}}>
-                                    <Box>
-                                        <Image src={data.image? data.image: "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} placeholder="https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"/>
+            {KegiatanData.length > 0 ? 
+                <SimpleGrid columns={[1, 2]} spacing={5} pt={25}>
+                    {KegiatanData.map((data, idx) => (
+                        <Link 
+                        href={`/kegiatan/${data.job_id}`}
+                        _hover={{ textDecoration: 'none' }} 
+                        _active={{ textDecoration: 'none' }}>
+                            <Box key={idx} boxShadow='md' borderRadius={10} p={15}>
+                                <Stack direction={{base: 'column-reverse', lg: 'row'}}>
+                                    <Box py={2}>
+                                        {showBadge(data.status)}
+                                        <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
+                                        <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
+                                        <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
                                     </Box>
-                                </Flex>
-                            </Stack>
-                        </Box>
-                    </Link>
+                                    <Spacer/>
+                                    <Flex 
+                                        mr={0}
+                                        ml={0}
+                                        justify={'center'}
+                                        align={'center'}
+                                        position={'relative'}
+                                        width={{base: '100%', lg: '40%'}}>
+                                        <Box>
+                                            <Image width={150} height={100} src={data.image? data.image: "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} placeholder="https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"/>
+                                        </Box>
+                                    </Flex>
+                                </Stack>
+                            </Box>
+                        </Link>
 
-                ))}
-            </SimpleGrid>
+                    ))}
+                </SimpleGrid>
+            : 
+            <Container py={150} maxW={'100%'} textAlign={'center'}>
+                <Box>
+                    <Text fontSize={24} fontWeight={'semibold'}>Tidak ada kegiatan!</Text>
+                    <Text fontSize={14} fontWeight={'regular'} color={'gray.600'}>Silakan cari kegiatan kamu yang lain.</Text>
+                </Box>
+            </Container>
+            }
         </Container>
         </>
     );

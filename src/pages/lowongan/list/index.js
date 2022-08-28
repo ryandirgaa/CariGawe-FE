@@ -105,9 +105,23 @@ const LowonganList = (props) => {
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
 
-    let data = LowonganData;
     const [currentPage, setCurrentPage] = React.useState(1);
     const pageNumbers = [];
+
+    const getJobs = () =>{
+        axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
+        .then((response)=> 
+        { 
+        var jobList = response.data;
+        setAllJobs(jobList);
+        })
+    }
+
+    useEffect(() => {
+        getJobs();
+      }, []);
+
+    let jobData = allJobs;
 
     const handleSearchChange = (e) => {
         e.preventDefault();
@@ -124,35 +138,20 @@ const LowonganList = (props) => {
         if((data.province === selectedValue && data.city === selectedValue2)
             || (selectedValue.length === 0 && selectedValue2.length === 0)
             || (data.province === selectedValue && selectedValue2.length === 0)) {
-            if (data.title.toLocaleLowerCase().includes(val)) return true;
+            if (data.name.toLocaleLowerCase().includes(val)) return true;
         }
         return false;
     };
     
-    data = data.filter((i) => matcher(i));
+    jobData = jobData.filter((i) => matcher(i));
     
-    for (let i = 1; i <= Math.ceil(data.length / 15); i++) {
+    for (let i = 1; i <= Math.ceil(jobData.length / 15); i++) {
         pageNumbers.push(i);
     }
 
     const indexOfLastData = currentPage * 15;
     const indexOfFirstData = indexOfLastData - 15;
-    data = data.slice(indexOfFirstData, indexOfLastData);
-
-    const getJobs = () =>{
-        axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
-        .then((response)=> 
-        { 
-        var jobList = response.data;
-        setAllJobs(jobList);
-        })
-    }
-
-    useEffect(() => {
-        getJobs();
-      }, []);
-
-    var jobData = allJobs;
+    jobData = jobData.slice(indexOfFirstData, indexOfLastData);
 
     return (
         <>
@@ -241,7 +240,7 @@ const LowonganList = (props) => {
                 </Flex>
 
             </Flex>
-            {data.length > 0 ? 
+            {jobData.length > 0 ? 
             <div>
             {pageNumbers.length > 1 && (
                 <Pagination>
@@ -301,7 +300,7 @@ const LowonganList = (props) => {
                                     position={'relative'}
                                     width={{base: '100%', lg: '40%'}}>
                                     <Box>
-                                        <Image src={data.image != null ? 
+                                        <Image width={150} height={100} src={data.image != null ? 
                                         data.image 
                                         : 
                                         "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} 
