@@ -63,6 +63,7 @@ const ListKegiatan = (props) => {
             result[i].employer = job.data.creator
             result[i].city = job.data.city
             result[i].province = job.data.province
+            result[i].image = job.data.image
         }
         console.log(result);
         setData(result)
@@ -178,28 +179,34 @@ const ListKegiatan = (props) => {
 
             <SimpleGrid columns={[1, 2]} spacing={5} pt={25}>
                 {data.map((data, idx) => (
-                    <Box key={idx} boxShadow='md' borderRadius={10} p={15}>
-                        <Stack direction={{base: 'column-reverse', lg: 'row'}}>
-                            <Box py={2}>
-                                {showBadge(data.status)}
-                                <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
-                                <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
-                                <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
-                            </Box>
-                            <Spacer/>
-                            <Flex 
-                                mr={0}
-                                ml={0}
-                                justify={'center'}
-                                align={'center'}
-                                position={'relative'}
-                                width={{base: '100%', lg: '40%'}}>
-                                <Box>
-                                    <Image src="https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg" />
+                    <Link 
+                    href={`/lowongan/${data.id}`}
+                    _hover={{ textDecoration: 'none' }} 
+                    _active={{ textDecoration: 'none' }}>
+                        <Box key={idx} boxShadow='md' borderRadius={10} p={15}>
+                            <Stack direction={{base: 'column-reverse', lg: 'row'}}>
+                                <Box py={2}>
+                                    {showBadge(data.status)}
+                                    <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
+                                    <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
+                                    <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
                                 </Box>
-                            </Flex>
-                        </Stack>
-                    </Box>
+                                <Spacer/>
+                                <Flex 
+                                    mr={0}
+                                    ml={0}
+                                    justify={'center'}
+                                    align={'center'}
+                                    position={'relative'}
+                                    width={{base: '100%', lg: '40%'}}>
+                                    <Box>
+                                        <Image src={data.image? data.image: "https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"} placeholder="https://media.suara.com/pictures/970x544/2019/01/03/72780-susu-sapi.jpg"/>
+                                    </Box>
+                                </Flex>
+                            </Stack>
+                        </Box>
+                    </Link>
+
                 ))}
             </SimpleGrid>
         </Container>
