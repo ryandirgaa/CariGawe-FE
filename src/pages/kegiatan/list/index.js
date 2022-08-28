@@ -72,7 +72,7 @@ const ListKegiatan = (props) => {
     const showBadge = (status) => {
         if (status === 'requested'){
             return <Badge mb={5} fontSize={12} colorScheme={'yellow'}>
-                Lamaran Dikirim
+                Lamaran Terkirim
             </Badge>
         }
         else if (status === 'accepted'){
@@ -141,10 +141,10 @@ const ListKegiatan = (props) => {
                     // onChange={(e) => setSelectedValue(e.target.value)}
                     // value={selectedValue}
                     placeholder='Status'>
-                        <option value="Selesai">Selesai</option>
-                        <option value="Sedang dikerjakan">Sedang dikerjakan</option>
-                        <option value="Diterima">Diterima</option>
-                        <option value="Ditolak">Ditolak</option>
+                        <option value="requeted">Lamaran Terkirim</option>
+                        <option value="comp[leted">Selesai</option>
+                        <option value="accepted">Diterima</option>
+                        <option value="rejected">Ditolak</option>
                 </Select>
                 <Spacer/>
                 <Flex width={{base: '100%', sm: '50%', lg: '30%'}}>

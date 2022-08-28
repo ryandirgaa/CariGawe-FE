@@ -20,6 +20,7 @@ import {
 import LowonganData from '../../../dummydata/lowongan.json';
 import Sidebar from '../../../component/sidebar';
 import { UserContext } from '../../../services/user-context';
+import APIConfig from '../../../api';
 
 function publishDay(string){
     return new Date(string).getDate();
@@ -30,18 +31,32 @@ const LowonganDetail = (props) => {
     const {currentUser, token, getFromLocalStorage} = useContext(UserContext);
     let d = new Date().getDate();
     const { kode } = useParams();
-    const [job, setJob] = useState([]);
+    const [job, setJob] = useState({});
     const [allJobs, setAllJobs] = useState([]);
+    const [lamaranList, setLamaranList] = useState([]);
 
     const getJob = () =>{
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
         .then((response)=> 
         { 
-        var jobResponse = response.data;
-        setJob(jobResponse);
+            console.log(response.data)
+            var jobResponse = response.data;
+            setJob(jobResponse);
+            if (job && currentUser === job.creator){
+                getLamaran(jobResponse)
+            }
         })
     }
 
+    const getLamaran = async (jobResponse) => {
+        let result = jobResponse.applicants.filter((item)=> item.status !== 'rejected')
+        for (let i = 0; i < result.length; i++){
+            let user = await APIConfig.get(`api/v1/user/${result[i].username}`);
+            result[i] = {...result[i], ...user.data}
+        }
+        console.log("lamaran", result)
+        setLamaranList(result)
+    }
     const getJobs = () =>{
         axios.get('https://carigawe-be.herokuapp.com/api/v1/job')
         .then((response)=> 
@@ -58,12 +73,12 @@ const LowonganDetail = (props) => {
         })
     }
 
-    const handleLamar = () => {
+    const handleLamar = (lamaran) => {
         if (token){
             const data ={
                 "job_id": kode
             }
-            axios.post('https://carigawe-be.herokuapp.com/api/v1/userjob', data, {
+            axios.post(`https://carigawe-be.herokuapp.com/api/v1/userjob/`, data, {
                 headers: {
                         'Authorization': `Bearer ${token}`
             }})
@@ -77,9 +92,42 @@ const LowonganDetail = (props) => {
             })
         }
     }
+
+    const handleStatus = (lamaran, option) => {
+        if (token){
+            const data ={
+                "status": option
+            }
+            axios.put(`https://carigawe-be.herokuapp.com/api/v1/userjob/${lamaran.job_id}/${lamaran.username}/status`, data, {
+                headers: {
+                        'Authorization': `Bearer ${token}`
+            }})
+            .then((response)=> 
+            { 
+                getJob()
+            }).catch((err) =>{
+                console.log(err)
+                err.response && alert(err.response.data.detail)
+            })
+        }
+    }
     
     const navigateEdit = () => {
         navigate((`/lowongan/${kode}/edit`))
+    }
+        
+    const remParticipants = (job) => {
+        if (job.applicants !== undefined){
+            let count = 0
+            for (let i; i < job.applicants.length; i++){
+                console.log("masuk")
+                if (job.applicants[i].status === 'accepted' || job.applicants[i].status === 'completed'){
+                    count++;
+                }
+            }
+            console.log("aaa",job.applicants)
+            return job.num_participants - count
+        }
     }
 
     useEffect(() => {
@@ -164,6 +212,23 @@ const LowonganDetail = (props) => {
                                     Edit
                                 </Button>
                                 }
+                                <Text py={25} color={'red.600'}>Tersisa {jobData && remParticipants(jobData)} slot pelamar lagi</Text>
+                                <Stack direction={'column'} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
+                                    {
+                                        jobData.creator !== currentUser?
+                                        <Button
+                                            onClick={handleLamar}
+                                            width={75}
+                                            size={'sm'}
+                                            fontSize={14}
+                                            colorScheme={'blue.600'}
+                                            bg={'blue.600'}>
+                                            Lamar
+                                        </Button> :
+                                        <></>
+                                    }
+           
+                                </Stack>
                             </Stack>
                         </Stack>
                         <Stack>
@@ -198,27 +263,83 @@ const LowonganDetail = (props) => {
                     flex={1}
                     flexDirection={'column'}
                     position={'relative'}>
-                    <Text pb={25} fontSize={20} fontWeight={600}>Lowongan Lainnya</Text>
-                    {allJobs.map((data) => (
-                        <Link 
-                            href={`/lowongan/${data.id}`}>
-                            <Box boxShadow='md' borderRadius={10} p={15} my={2}>
-                                <Box py={2}>
-                                    <Text fontSize={16} fontWeight={'semibold'}>{data.name}</Text>
-                                    <Text fontSize={12} fontWeight={'regular'}>{data.creator}</Text>
-                                    <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
+                    { currentUser !== jobData.creator ?
+                        <>
+                            <Text pb={25} fontSize={20} fontWeight={600}>Lowongan Lainnya</Text>
+                            {allJobs.map((data) => (
+                                <Link 
+                                    href={`/lowongan/${data.id}`}>
+                                    <Box boxShadow='md' borderRadius={10} p={15} my={2}>
+                                        <Box py={2}>
+                                            <Text fontSize={16} fontWeight={'semibold'}>{data.name}</Text>
+                                            <Text fontSize={12} fontWeight={'regular'}>{data.creator}</Text>
+                                            <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
+                                        </Box>
+                                    </Box>
+                                </Link>
+                            ))}
+                            <Link 
+                                pt={25}
+                                fontSize={14}
+                                href='/lowongan' 
+                                color={'blue.600'}
+                                textAlign={'center'}>
+                                Lihat semua
+                            </Link>
+                        </>:
+                        <>
+                            <Text pb={25} fontSize={20} fontWeight={600}>Daftar Pelamar</Text>
+                            {lamaranList.map((data, idx) => (
+                                <Box key={idx} boxShadow='md' borderRadius={10} p={15} my={2}>
+                                    <Box py={2}>
+                                        <Stack direction={{base: 'column', lg: 'row'}} spacing={4}>
+                                            <Avatar name={data.username} src={data.image} />
+                                            <Stack direction={'column'} spacing={0} fontSize={'sm'}>
+                                                <Text fontSize={16} fontWeight={'semibold'}>{data.username}</Text>
+                                                <Text fontSize={12} fontWeight={'regular'}>{data.contact}</Text>
+                                                <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.description}</Text>
+                                                <Stack direction={'row'} spacing={2} pl={{base: 0, lg: 3}} fontSize={'sm'} style={{paddingLeft: 0}}>
+                                                {
+                                                    data.status === 'requested' ?
+                                                    <>
+                                                        <Button
+                                                            onClick={() => handleStatus(data, 'accepted')}
+                                                            width={75}
+                                                            size={'sm'}
+                                                            fontSize={14}
+                                                            colorScheme={'blue.600'}
+                                                            bg={'blue.600'}>
+                                                            Terima
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => handleStatus(data, 'rejected')}
+                                                            width={75}
+                                                            size={'sm'}
+                                                            fontSize={14}
+                                                            colorScheme={'red.600'}
+                                                            bg={'red.600'}>
+                                                            Tolak
+                                                        </Button>
+                                                    </>: data.status === 'accepted' ?
+                                                    <Button
+                                                    onClick={() => handleStatus(data, 'completed')}
+                                                        width={75}
+                                                        size={'sm'}
+                                                        fontSize={14}
+                                                        colorScheme={'blue.600'}
+                                                        bg={'blue.600'}>
+                                                        Selesai
+                                                    </Button> :
+                                                    <Text fontSize={12} fontWeight={'semibold'}>Pekerjaan Selesai</Text>
+                                                }
+                                            </Stack>
+                                            </Stack>
+                                        </Stack>
+                                    </Box>
                                 </Box>
-                            </Box>
-                        </Link>
-                    ))}
-                    <Link 
-                        pt={25}
-                        fontSize={14}
-                        href='/lowongan' 
-                        color={'blue.600'}
-                        textAlign={'center'}>
-                        Lihat semua
-                    </Link>
+                            ))}
+                        </>
+                    }
                 </Flex>
             </Stack>
         </Container>
