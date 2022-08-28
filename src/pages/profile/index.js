@@ -38,7 +38,7 @@ const Profil = (props) => {
     const [description, setDescription] = useState("");
     const [image, setImage] = useState(undefined);
 
-    const [data, setData] =  React.useState([]);
+    const [data, setData] =  useState([]);
 
     const getUser = async(x) => {
         const response = await APIConfig.get(`api/v1/user/${x}`);
