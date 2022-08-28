@@ -23,7 +23,6 @@ import {
     NumberInputStepper,
     NumberIncrementStepper,
     NumberDecrementStepper,
-    Button,
     Box,
   } from '@chakra-ui/react';
 
