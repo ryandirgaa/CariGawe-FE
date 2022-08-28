@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {
     Container,
@@ -31,6 +31,7 @@ const LowonganDetail = (props) => {
     const { kode } = useParams();
     const [job, setJob] = useState([]);
     const [allJobs, setAllJobs] = useState([]);
+    let navigate = useNavigate();
 
     const getJob = () =>{
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
@@ -82,6 +83,9 @@ const LowonganDetail = (props) => {
         }
     }
     
+    const navigateEdit = () => {
+        navigate((`/lowongan/${kode}/edit`))
+    }
 
     useEffect(() => {
         getFromLocalStorage()
@@ -143,6 +147,8 @@ const LowonganDetail = (props) => {
                                 <Text>{jobData.creator}</Text>
                                 <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
                                 <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
+                                {
+                                jobData.creator != currentUser? 
                                 <Button
                                     onClick={handleLamar}
                                     width={75}
@@ -152,6 +158,17 @@ const LowonganDetail = (props) => {
                                     bg={'blue.600'}>
                                     Lamar
                                 </Button>
+                                :
+                                <Button
+                                    onClick={navigateEdit}
+                                    width={75}
+                                    size={'sm'}
+                                    fontSize={14}
+                                    colorScheme={'green'}
+                                    bg={'green'}>
+                                    Edit
+                                </Button>
+                                }
                             </Stack>
                         </Stack>
                         <Stack>

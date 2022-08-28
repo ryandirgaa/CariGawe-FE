@@ -36,7 +36,7 @@ import ProvinsiData from '../../../dummydata/province.json';
 import IndonesiaData from '../../../dummydata/indonesia.json';
 import { UserContext } from '../../../services/user-context';
   
-const CreateLowongan = (props) => {
+const EditLowongan = (props) => {
     const {currentUser, getFromLocalStorage, token} = useContext(UserContext);
     const [contact, setContact] = React.useState("");
     const [provinsi, setProvinsi] = React.useState("");
@@ -46,9 +46,10 @@ const CreateLowongan = (props) => {
     const [upah, setUpah] = React.useState(0);    
     const [deskripsi, setDeskripsi] = React.useState("");
     const [image, setImage] = useState(null);
+    const { kode } = useParams();
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
-    let navigate = useNavigate();
+    let navigate = useNavigate()
 
     const getUser = async(e) => {
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/user/${currentUser}`)
@@ -58,6 +59,25 @@ const CreateLowongan = (props) => {
         setContact(userContact);
         })
     };
+
+    const getJob = () =>{
+        axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
+        .then((response)=> 
+        { 
+        var jobResponse = response.data;
+        if(currentUser != jobResponse.creator){
+            navigate((`/lowongan`))
+        }
+        setDeskripsi(jobResponse.description)
+        setProvinsi(jobResponse.province)
+        setKota(jobResponse.city)
+        setNamaPekerjaan(jobResponse.name)
+        setJmlhLowongan(jobResponse.num_participants)
+        setUpah(jobResponse.wage)
+        }).catch(error =>{
+            navigate((`/lowongan`))
+        })
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault()
@@ -72,7 +92,9 @@ const CreateLowongan = (props) => {
             "contact": contact,
             "num_participants": jmlhLowongan,
             "wage": upah,
-            "status": "open"
+            "status": "open",
+            "id": kode,
+            "image": null
         }
         let formData = new FormData();
         formData.append("item", JSON.stringify(data))
@@ -97,7 +119,9 @@ const CreateLowongan = (props) => {
             currentUser && getUser(currentUser)
         }, [currentUser]);
 
-    
+        useEffect(() => {
+            getJob()
+          }, []);
     return (
         <>
         <Sidebar/>
@@ -116,16 +140,16 @@ const CreateLowongan = (props) => {
                         fontSize={{ base: '16', md: '20' }}
                         color={'white'}
                         href={null}>
-                        Buat Lowongan
+                        Edit Lowongan
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             </Breadcrumb>
         </Container>
 
         <Container pl={{base: 70, md: 300}} pr={{base: 15, md: 35}} py={50} maxW={'100%'}>
-            <Text mb={5} fontSize={20} fontWeight={600}>Buat Lowongan</Text>
+            <Text mb={5} fontSize={20} fontWeight={600}>Edit Lowongan</Text>
             <Form onSubmit={handleSubmit}>
-            <FormControl isRequired>
+            <FormControl>
             <VStack
                 spacing={4}
                 align='stretch'
@@ -195,7 +219,7 @@ const CreateLowongan = (props) => {
                                     />
                         </FormControl> */}
             </VStack>
-            <button className="float-end"><Button mt={4} colorScheme='blue'>Buat</Button></button>
+            <button className="float-end"><Button mt={4} colorScheme='blue'>Ubah</Button></button>
             </FormControl>
             </Form>
         </Container>
@@ -203,4 +227,4 @@ const CreateLowongan = (props) => {
     );
 }
 
-export default CreateLowongan;
+export default EditLowongan;
