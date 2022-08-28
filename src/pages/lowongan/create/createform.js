@@ -77,7 +77,7 @@ const CreateLowongan = (props) => {
         let formData = new FormData();
         formData.append("item", JSON.stringify(data))
 
-        axios.put('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
+        axios.post('https://carigawe-be.herokuapp.com/api/v1/job', formData, {
             headers: {
                  'Authorization': `Bearer ${token}`
             }
