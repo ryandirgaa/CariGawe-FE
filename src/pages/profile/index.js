@@ -15,8 +15,6 @@ import {
     HStack
   } from '@chakra-ui/react';
 
-import StarRatings from 'react-star-ratings';
-
 import LowonganData from '../../dummydata/lowongan.json';
 
 import Sidebar from '../../component/sidebar';
