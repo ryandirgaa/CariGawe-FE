@@ -191,7 +191,7 @@ const LowonganDetail = (props) => {
                                 <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
                                 <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
                                 {
-                                jobData.creator != currentUser? 
+                                jobData.creator !== currentUser? 
                                 <Button
                                     onClick={handleLamar}
                                     width={75}
@@ -212,23 +212,7 @@ const LowonganDetail = (props) => {
                                     Edit
                                 </Button>
                                 }
-                                <Text py={25} color={'red.600'}>Tersisa {jobData && remParticipants(jobData)} slot pelamar lagi</Text>
-                                <Stack direction={'column'} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
-                                    {
-                                        jobData.creator !== currentUser?
-                                        <Button
-                                            onClick={handleLamar}
-                                            width={75}
-                                            size={'sm'}
-                                            fontSize={14}
-                                            colorScheme={'blue.600'}
-                                            bg={'blue.600'}>
-                                            Lamar
-                                        </Button> :
-                                        <></>
-                                    }
-           
-                                </Stack>
+    
                             </Stack>
                         </Stack>
                         <Stack>
