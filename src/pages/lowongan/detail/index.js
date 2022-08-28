@@ -112,6 +112,10 @@ const LowonganDetail = (props) => {
         }
     }
     
+    const navigateEdit = () => {
+        navigate((`/lowongan/${kode}/edit`))
+    }
+        
     const remParticipants = (job) => {
         if (job.applicants !== undefined){
             let count = 0
@@ -185,23 +189,30 @@ const LowonganDetail = (props) => {
                                 <Text fontSize={20} fontWeight={600}>{jobData.name}</Text>
                                 <Text>{jobData.creator}</Text>
                                 <Text color={'gray.600'}>{jobData.city}, {jobData.province}</Text>
-                                <Text py={25} color={'red.600'}>Tersisa {jobData && remParticipants(jobData)} slot pelamar lagi</Text>
-                                <Stack direction={'column'} spacing={0} pl={{base: 0, lg: 3}} fontSize={'sm'}>
-                                    {
-                                        jobData.creator !== currentUser?
-                                        <Button
-                                            onClick={handleLamar}
-                                            width={75}
-                                            size={'sm'}
-                                            fontSize={14}
-                                            colorScheme={'blue.600'}
-                                            bg={'blue.600'}>
-                                            Lamar
-                                        </Button> :
-                                        <></>
-                                    }
-           
-                                </Stack>
+                                <Text py={25} color={'red.600'}>Tersisa {jobData.num_participants} slot pelamar lagi</Text>
+                                {
+                                jobData.creator !== currentUser? 
+                                <Button
+                                    onClick={handleLamar}
+                                    width={75}
+                                    size={'sm'}
+                                    fontSize={14}
+                                    colorScheme={'blue.600'}
+                                    bg={'blue.600'}>
+                                    Lamar
+                                </Button>
+                                :
+                                <Button
+                                    onClick={navigateEdit}
+                                    width={75}
+                                    size={'sm'}
+                                    fontSize={14}
+                                    colorScheme={'green'}
+                                    bg={'green'}>
+                                    Edit
+                                </Button>
+                                }
+    
                             </Stack>
                         </Stack>
                         <Stack>

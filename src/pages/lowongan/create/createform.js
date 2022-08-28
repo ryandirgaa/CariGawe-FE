@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Form from 'react-validation/build/form';
 import axios from 'axios';
 import {
@@ -15,6 +15,7 @@ import {
     FormControl,
     FormLabel,
     Textarea,
+    Button,
     InputLeftAddon,
     Select,
     NumberInput,
@@ -43,7 +44,7 @@ const CreateLowongan = (props) => {
 
     let provinceData = ProvinsiData;
     let cityData = IndonesiaData;
-    let navigate = useNavigate()
+    let navigate = useNavigate();
 
     const getUser = async(e) => {
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/user/${currentUser}`)
@@ -93,7 +94,6 @@ const CreateLowongan = (props) => {
             currentUser && getUser(currentUser)
         }, [currentUser]);
 
-        
     
     return (
         <>
