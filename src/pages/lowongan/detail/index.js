@@ -32,7 +32,6 @@ const LowonganDetail = (props) => {
     const { kode } = useParams();
     const [job, setJob] = useState([]);
     const [allJobs, setAllJobs] = useState([]);
-    let navigate = useNavigate();
 
     const getJob = () =>{
         axios.get(`https://carigawe-be.herokuapp.com/api/v1/job/${kode}`)
