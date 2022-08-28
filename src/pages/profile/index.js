@@ -37,7 +37,8 @@ const Profil = (props) => {
     const [contact, setContact] = useState("");
     const [description, setDescription] = useState("");
     const [image, setImage] = useState(undefined);
-    let data = LowonganData;
+
+    const [data, setData] =  React.useState([]);
 
     const getUser = async(x) => {
         const response = await APIConfig.get(`api/v1/user/${x}`);
@@ -51,12 +52,54 @@ const Profil = (props) => {
         setImage(result.image);
     };
 
+    const getKegiatan = async(x) => {
+        const response = await APIConfig.get(`api/v1/user/${x}`);
+        const result = await response.data.application;
+        for (let i = 0; i < result.length; i++){
+            let job = await APIConfig.get(`api/v1/job/${result[i].job_id}`);
+            result[i].title = job.data.name
+            result[i].employer = job.data.creator
+            result[i].city = job.data.city
+            result[i].province = job.data.province
+            result[i].image = job.data.image
+        }
+        console.log(result);
+        setData(result)
+    };
+
+    const showBadge = (status) => {
+        if (status === 'requested'){
+            return <Badge mb={5} fontSize={12} colorScheme={'yellow'}>
+                Lamaran Dikirim
+            </Badge>
+        }
+        else if (status === 'accepted'){
+            return <Badge mb={5} fontSize={12} colorScheme={'green'}>
+                Diterima
+            </Badge>
+        }
+        else if (status === 'completed'){
+            return <Badge mb={5} fontSize={12} colorScheme={'blue'}>
+                Selesai
+            </Badge>
+        }
+        else if (status === 'rejected'){
+            return <Badge mb={5} fontSize={12} colorScheme={'red'}>
+                Ditolak
+            </Badge>
+        }
+    }
+
     useEffect(() => {
         getFromLocalStorage();
       }, []);
 
     useEffect(() => {
         currentUser && getUser(currentUser);
+    }, [currentUser]);
+
+    useEffect(() => {
+        currentUser && getKegiatan(currentUser);
     }, [currentUser]);
 
 
@@ -150,16 +193,17 @@ const Profil = (props) => {
                     position={'relative'}>
                     <Text pb={25} fontSize={20} fontWeight={600}>Kegiatan Kamu</Text>
                     {data.slice(0, 3).map((data) => (
-                        <Box boxShadow='md' borderRadius={10} p={15} my={2}>
-                            <Box py={2}>
-                                <Badge mb={5} fontSize={12} colorScheme={'green'}>
-                                    Selesai
-                                </Badge>
-                                <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
-                                <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
-                                <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
+                        <Link 
+                            href={`/kegiatan/${data.job_id}`}>
+                            <Box boxShadow='md' borderRadius={10} p={15} my={2}>
+                                <Box py={2}>
+                                    {showBadge(data.status)}
+                                    <Text fontSize={16} fontWeight={'semibold'}>{data.title}</Text>
+                                    <Text fontSize={12} fontWeight={'regular'}>{data.employer}</Text>
+                                    <Text color={'gray.600'} fontSize={12} fontWeight={'regular'}>{data.city}, {data.province}</Text>
+                                </Box>
                             </Box>
-                        </Box>
+                        </Link>
                     ))}
                     <Link 
                         pt={25}
@@ -169,6 +213,7 @@ const Profil = (props) => {
                         textAlign={'center'}>
                         Lihat semua
                     </Link>
+                    
                 </Flex>
             </Stack>
         </Container>
